@@ -1,1 +1,71 @@
 /* You can add global styles to this file, and also import other style files */
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe Print", sans-serif;
+}
+
+input {
+  width: 100%;
+  min-width: 80px;
+  height: 58px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid #EAEAEA;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+input:focus {
+  outline: none;
+}
+
+button {
+  width: 90%;
+  min-width: 80px;
+  height: 58px;
+  padding: 4px 8px;
+  background-color: #27AE60;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+button:hover {
+  background-color: #27AE60;
+}
+
+form {
+  width: 438px;
+  height: max-content;
+  margin: auto;
+  border-radius: 26px;
+  border: 1px solid #D6D6D6;
+  padding: 35px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+}
+
+form > div {
+  width: 90%;
+}
+
+form > p > span {
+  cursor: pointer;
+  color: #333333;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+form > p > span:hover {
+  transform: translateY(5px);
+}
+
+.error-message {
+  color: red;
+}

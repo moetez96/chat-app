@@ -1,0 +1,54 @@
+<div class="register-container">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div>
+      <h1>Register</h1>
+      <h2>to get started</h2>
+    </div>
+
+    <div>
+      <input id="username" formControlName="username" type="text" placeholder="Username" />
+      <div *ngIf="submitted && registerForm.controls['username'].errors">
+        <small *ngIf="registerForm.controls['username'].errors?.['required']" class="error-message">
+          Username is required
+        </small>
+      </div>
+    </div>
+
+    <div>
+      <input id="email" formControlName="email" type="email" placeholder="Email" />
+      <div *ngIf="submitted && registerForm.controls['email'].errors">
+        <small *ngIf="registerForm.controls['email'].errors?.['required']" class="error-message">
+          Email is required
+        </small>
+        <small *ngIf="registerForm.controls['email'].errors?.['email']" class="error-message">
+          Invalid email format
+        </small>
+      </div>
+    </div>
+
+    <div>
+      <input id="password" formControlName="password" type="password" placeholder="Password" />
+      <div *ngIf="submitted && registerForm.controls['password'].errors">
+        <small *ngIf="registerForm.controls['password'].errors?.['required']" class="error-message">
+          Password is required
+        </small>
+      </div>
+    </div>
+
+    <div>
+      <input id="confirmPassword" formControlName="confirmPassword" type="password" placeholder="Confirm Password" />
+      <div *ngIf="submitted && registerForm.controls['confirmPassword'].errors">
+        <small *ngIf="registerForm.controls['confirmPassword'].errors?.['required']" class="error-message">
+          Confirm Password is required
+        </small>
+        <small *ngIf="registerForm.errors?.['passwordMismatch']" class="error-message">
+          Passwords do not match
+        </small>
+      </div>
+    </div>
+
+    <button type="submit">Register</button>
+
+    <p> Already have an account? <span (click)="navigateToLogin()"> Login </span> </p>
+  </form>
+</div>
