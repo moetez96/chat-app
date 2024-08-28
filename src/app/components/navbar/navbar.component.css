@@ -1,0 +1,79 @@
+.navbar-wrapper {
+  width: 84px;
+  background-color: #FAFAFA;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-container > hr {
+  margin-top: 20px;
+  color: #000000;
+  border: 1px solid gray;
+}
+
+.profile-picture {
+  width: 64px;
+  height: 64px;
+  background-color: rgb(128, 128, 128);
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-options {
+  width: 100%;
+  height: max-content;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-option {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav-option:hover {
+  background-color: #cecece;
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.nav-option-active {
+  width: 64px;
+  height: 64px;
+  background-color: #27AE60;
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-settings-container {
+  width: 100%;
+  height: max-content;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-icon {
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
