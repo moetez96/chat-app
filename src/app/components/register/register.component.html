@@ -5,12 +5,18 @@
       <h2>to get started</h2>
     </div>
 
+    <div *ngIf="errorMessage" class="error-message">
+      <small>{{ errorMessage }}</small>
+    </div>
     <div>
       <input id="username" formControlName="username" type="text" placeholder="Username" />
       <div *ngIf="submitted && registerForm.controls['username'].errors">
         <small *ngIf="registerForm.controls['username'].errors?.['required']" class="error-message">
           Username is required
         </small>
+      </div>
+      <div *ngIf="usernameErrorMessage" class="error-message">
+        <small>{{ usernameErrorMessage }}</small>
       </div>
     </div>
 
@@ -23,6 +29,9 @@
         <small *ngIf="registerForm.controls['email'].errors?.['email']" class="error-message">
           Invalid email format
         </small>
+      </div>
+      <div *ngIf="emailErrorMessage" class="error-message">
+        <small>{{ emailErrorMessage }}</small>
       </div>
     </div>
 
@@ -41,7 +50,7 @@
         <small *ngIf="registerForm.controls['confirmPassword'].errors?.['required']" class="error-message">
           Confirm Password is required
         </small>
-        <small *ngIf="registerForm.errors?.['passwordMismatch']" class="error-message">
+        <small *ngIf="registerForm.controls['confirmPassword'].errors?.['passwordMismatch']" class="error-message">
           Passwords do not match
         </small>
       </div>

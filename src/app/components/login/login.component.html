@@ -5,12 +5,19 @@
       <h2>to get started</h2>
     </div>
 
+    <div *ngIf="errorMessage" class="error-message">
+      <small>{{ errorMessage }}</small>
+    </div>
+
     <div>
       <input id="username" formControlName="username" type="text" placeholder="Username" />
       <div *ngIf="submitted && loginForm.controls['username'].errors">
         <small *ngIf="loginForm.controls['username'].errors?.['required']" class="error-message">
           Username is required
         </small>
+      </div>
+      <div *ngIf="usernameErrorMessage" class="error-message">
+        <small>{{ usernameErrorMessage }}</small>
       </div>
     </div>
 
@@ -20,6 +27,9 @@
         <small *ngIf="loginForm.controls['password'].errors?.['required']" class="error-message">
           Password is required
         </small>
+      </div>
+      <div *ngIf="passwordErrorMessage" class="error-message">
+        <small>{{ passwordErrorMessage }}</small>
       </div>
     </div>
 
