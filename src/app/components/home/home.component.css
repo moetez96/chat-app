@@ -1,8 +1,7 @@
 .home-wrapper {
+  grid-template-columns: 84px 1fr;
+  display: grid;
   height: 100%;
   width: 100%;
-}
-
-.messenger-wrapper {
-
+  max-height: 100%;
 }
