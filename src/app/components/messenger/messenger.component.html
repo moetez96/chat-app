@@ -7,20 +7,9 @@
     </div>
     <div class="contacts-container">
       <div class="contacts-content">
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
-        <div class="contact"></div>
+        <ng-container *ngFor="let contact of contacts">
+          <app-contact-card ></app-contact-card>
+        </ng-container>
       </div>
     </div>
   </div>

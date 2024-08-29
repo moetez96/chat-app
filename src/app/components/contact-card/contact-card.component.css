@@ -1,0 +1,74 @@
+.contact {
+  position: relative;
+  min-height: 50px;
+  width: 96%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  padding-left: 2px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.active {
+  background-color: #EEEEEE;
+}
+
+.contact:hover {
+  background-color: #c2c1c1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.contact-img-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
+  background-color: #D6D6D6;
+}
+
+.contact-status {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50px;
+  background-color: #27AE60;
+  border: 1px solid white;
+  bottom: 1px;
+  right: 5px;
+}
+
+.contact-description {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-width: 75%;
+}
+.contact-description > h4{
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-description > p{
+  color: rgb(128, 128, 128);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-date {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  font-size: 13px;
+}
+.contact-seen {
+  position: absolute;
+  bottom: -2px;
+  right: 10px;
+  font-size: 13px;
+}

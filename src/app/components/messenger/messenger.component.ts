@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrl: './messenger.component.css'
 })
 export class MessengerComponent {
-
+  contacts = Array(25).fill(0);
 }

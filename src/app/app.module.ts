@@ -10,6 +10,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MessengerComponent } from './components/messenger/messenger.component';
+import { ContactCardComponent } from './components/contact-card/contact-card.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { MessengerComponent } from './components/messenger/messenger.component';
     RegisterComponent,
     HomeComponent,
     NavbarComponent,
-    MessengerComponent
+    MessengerComponent,
+    ContactCardComponent
   ],
   imports: [
     BrowserModule,
