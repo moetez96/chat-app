@@ -2,12 +2,12 @@
   grid-template-columns: 30% 70%;
   display: grid;
   height: 100%;
-  width: 100%;
+  width: auto;
   max-height: 100%;
 }
 
 .contacts-wrapper {
-  width: 100%;
+  width: auto;
   height: 100%;
   max-height: 100%;
   display: grid;
@@ -27,6 +27,7 @@
 
 .contacts-container {
   position: relative;
+  overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
   scroll-behavior: smooth;
@@ -44,16 +45,14 @@
   align-items: center;
   gap: 17px;
   position: absolute;
-  width: 100%;
+  width: auto;
   padding-bottom: 20px;
-  padding-left: 10px;
 }
-
-
 
 .chat-wrapper {
-  background-color: lightgreen;
-  width: 100%;
+  position: relative;
+  background-color: #d3d3d3;
+  max-width: 100%;
   max-height: 100%;
+  border-left: 1px solid #b0b0b0;
 }
-

@@ -11,6 +11,7 @@ import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MessengerComponent } from './components/messenger/messenger.component';
 import { ContactCardComponent } from './components/contact-card/contact-card.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { ContactCardComponent } from './components/contact-card/contact-card.com
     HomeComponent,
     NavbarComponent,
     MessengerComponent,
-    ContactCardComponent
+    ContactCardComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,
