@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Friend} from "../../models/Friend";
 
 @Component({
   selector: 'app-messenger',
@@ -6,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrl: './messenger.component.css'
 })
 export class MessengerComponent {
-  contacts = Array(25).fill(0);
+
+  @Input()
+  friendsList: Friend[] = [];
+
+  constructor() {
+  }
 }

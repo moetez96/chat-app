@@ -49,7 +49,7 @@ export class LoginComponent {
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
         console.log('Login successful', response);
-        this.router.navigate(['/register']);
+        this.router.navigate(['/home']);
       },
       error: (error) => {
         console.error('Login failed', error);

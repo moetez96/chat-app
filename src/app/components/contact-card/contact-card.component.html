@@ -1,15 +1,20 @@
 <div class="contact">
   <div class="contact-img-container">
-    <div class="contact-status"></div>
+    <div class="contact-status" [style.background-color]="friend.isOnline ? '#27AE60' : 'gray'"></div>
   </div>
   <div class="contact-description">
-    <h4 class="contact-name">John Doe</h4>
+    <h4 class="contact-name">{{friend.connectionUsername}}</h4>
     <p class="contact-conv">How are you doing? are you interested in Insecticides</p>
   </div>
   <div class="contact-date">16:45</div>
   <div class="contact-seen">
-    <svg width="18" height="18" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5.801 6.88L6.507 7.586L10.74 3.353L11.447 4.06L6.507 9L3.325 5.818L4.032 5.111L5.0945 6.1735L5.801 6.8795V6.88ZM5.802 5.466L8.278 2.9895L8.983 3.6945L6.507 6.171L5.802 5.466ZM4.3885 8.2935L3.682 9L0.5 5.818L1.207 5.111L1.9135 5.8175L1.913 5.818L4.3885 8.2935Z" fill="#27AE60"/>
-    </svg>
+    <div class="messages-seen" *ngIf="friend.unSeen !== 0">
+      {{ friend.unSeen }}
+    </div>
+    <span [hidden]="friend.unSeen !== 0">
+      <svg width="18" height="18" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.801 6.88L6.507 7.586L10.74 3.353L11.447 4.06L6.507 9L3.325 5.818L4.032 5.111L5.0945 6.1735L5.801 6.8795V6.88ZM5.802 5.466L8.278 2.9895L8.983 3.6945L6.507 6.171L5.802 5.466ZM4.3885 8.2935L3.682 9L0.5 5.818L1.207 5.111L1.9135 5.8175L1.913 5.818L4.3885 8.2935Z" fill="#27AE60"/>
+      </svg>
+    </span>
   </div>
 </div>

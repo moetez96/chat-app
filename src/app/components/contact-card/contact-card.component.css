@@ -34,10 +34,9 @@
   width: 10px;
   height: 10px;
   border-radius: 50px;
-  background-color: #27AE60;
-  border: 1px solid white;
-  bottom: 1px;
-  right: 5px;
+  border: 2px solid white;
+  bottom: 0;
+  right: 2px;
 }
 
 .contact-description {
@@ -71,4 +70,18 @@
   bottom: -2px;
   right: 10px;
   font-size: 13px;
+}
+
+.messages-seen {
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #D6D6D6;
+  right: 0;
+  bottom: 6px;
+  background-color: #27AE60;
 }

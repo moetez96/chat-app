@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Friend} from "../../models/Friend";
 
 @Component({
   selector: 'app-contact-card',
@@ -6,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrl: './contact-card.component.css'
 })
 export class ContactCardComponent {
+
+  @Input()
+  friend!: Friend;
+
+  constructor() {
+  }
 
 }
