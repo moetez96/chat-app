@@ -20,8 +20,11 @@
     "@angular/router": "^18.2.0",
     "@auth0/angular-jwt": "^5.2.0",
     "@stomp/stompjs": "^7.0.0",
+    "@types/sockjs-client": "^1.5.4",
     "rxjs": "~7.8.0",
+    "sockjs-client": "^1.6.1",
     "tslib": "^2.3.0",
+    "webstomp-client": "^1.2.6",
     "zone.js": "~0.14.10"
   },
   "devDependencies": {

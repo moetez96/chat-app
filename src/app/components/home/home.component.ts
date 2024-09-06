@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUser } from '../../models/CurrentUser';
 import { FriendsService } from '../../services/friends.service';
 import { Friend } from '../../models/Friend';
 import { forkJoin } from 'rxjs';
+import {WebSocketService} from "../../socket/WebSocketService";
 
 
 @Component({
@@ -12,11 +13,15 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./home.component.css']
 })
 
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   currentUser: CurrentUser | null = null;
   friendsList: Friend[] = [];
+  public interval: number = 1;
 
-  constructor(private authService: AuthService, private friendsService: FriendsService) {}
+  constructor(private authService: AuthService,
+              private friendsService: FriendsService,
+              private webSocketService: WebSocketService) {
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -40,5 +45,15 @@ export class HomeComponent implements OnInit {
         console.error('Error fetching data:', error.status);
       }
     });
+
+    const token = this.authService.getToken();
+    const url = 'ws://127.0.0.1:8080/ws';
+
+    this.webSocketService.connect(url, token);
   }
+
+  ngOnDestroy() {
+    this.webSocketService.disconnect();
+  }
+
 }
