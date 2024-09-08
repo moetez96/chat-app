@@ -16,6 +16,9 @@ export class ContactCardComponent implements OnInit{
   @Input()
   friend!: Friend;
 
+  @Input()
+  selectedConvId!: string | null;
+
   constructor(private authService: AuthService, private webSocketService: WebSocketService) {
   }
 

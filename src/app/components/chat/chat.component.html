@@ -1,11 +1,29 @@
-<div class="chat-header">
-  <div class="chat-header-img"></div>
-  <div class="chat-header-desc">
-    <h3 class="chat-header-name">Moetez Ayari</h3>
-    <p class="chat-header-status">Online</p>
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="chat-header-img"></div>
+    <div class="chat-header-desc">
+      <h3 class="chat-header-name">Moetez Ayari</h3>
+      <p class="chat-header-status">Online</p>
+    </div>
   </div>
-</div>
-<div class="chat-footer">
-  <input type="text" placeholder="Type you message here...">
-  <button class="send-message">Send message</button>
+  <div class="chat-messages-wrapper" >
+    <div class="chat-messages-container" #messagesContainer>
+    <div class="chat-message-container" *ngFor="let message of chatMessages" >
+      <div class="chat-message"
+           [style.right]="currentUser?.id === message.senderId ? '20px' : 'none'"
+           [style.background-color]="currentUser?.id === message.senderId ? '#D7FCD2' : ''">
+        <p>{{ message.content }}</p>
+        <div class="chat-message-metadata"
+             [style.flex-direction]="currentUser?.id === message.senderId ? 'flex-end' : ''">
+          <p>15:42</p>
+        </div>
+      </div>
+    </div>
+    <div #messagesEnd></div>
+    </div>
+  </div>
+  <div class="chat-footer">
+    <input type="text" placeholder="Type you message here...">
+    <button class="send-message">Send message</button>
+  </div>
 </div>

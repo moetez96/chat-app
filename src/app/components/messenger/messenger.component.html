@@ -8,12 +8,11 @@
     <div class="contacts-container">
       <div class="contacts-content">
         <ng-container *ngFor="let friend of friendsList">
-          <app-contact-card [friend]="friend"></app-contact-card>
+          <app-contact-card [friend]="friend" [selectedConvId]="selectedConvId"
+                            (click)="selectConversation(friend.convId)"></app-contact-card>
         </ng-container>
       </div>
     </div>
   </div>
-  <div class="chat-wrapper">
-    <app-chat></app-chat>
-  </div>
+  <app-chat class="chat-wrapper" [selectedConvId]="selectedConvId"></app-chat>
 </div>
