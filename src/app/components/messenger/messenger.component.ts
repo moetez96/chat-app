@@ -1,39 +1,39 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Friend} from "../../models/Friend";
+  import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+  import {Friend} from "../../models/Friend";
 
-@Component({
-  selector: 'app-messenger',
-  templateUrl: './messenger.component.html',
-  styleUrl: './messenger.component.css'
-})
-export class MessengerComponent implements OnInit, OnChanges{
+  @Component({
+    selector: 'app-messenger',
+    templateUrl: './messenger.component.html',
+    styleUrl: './messenger.component.css'
+  })
+  export class MessengerComponent implements OnInit, OnChanges{
 
-  @Input()
-  friendsList: Friend[] = [];
+    @Input()
+    friendsList: Friend[] = [];
 
-  selectedConvId: string | null = null;
+    selectedFriend: Friend | null = null;
 
-  constructor() {
-  }
-
-  ngOnInit() {
-    if (this.friendsList.length > 0) {
-      this.selectedConvId = this.friendsList[0].convId;
-    } else {
-      console.log("Friends List is empty");
+    constructor() {
     }
-  }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['friendsList'] && changes['friendsList'].currentValue.length > 0) {
-      if (!this.selectedConvId) {
-        this.selectedConvId = changes['friendsList'].currentValue[0].convId;
-        console.log('selectedConvId updated:', this.selectedConvId);
+    ngOnInit() {
+      if (this.friendsList.length > 0) {
+        this.selectedFriend = this.friendsList[0];
+      } else {
+        console.log("Friends List is empty");
       }
     }
-  }
 
-  selectConversation(convId: string) {
-    this.selectedConvId = convId;
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['friendsList'] && changes['friendsList'].currentValue.length > 0) {
+        if (!this.selectedFriend) {
+          this.selectedFriend = changes['friendsList'].currentValue[0];
+          console.log('selectedConvId updated:', this.selectedFriend);
+        }
+      }
+    }
+
+    selectConversation(selectedFriend: Friend) {
+      this.selectedFriend = selectedFriend;
+    }
   }
-}

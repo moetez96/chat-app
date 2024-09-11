@@ -26,7 +26,6 @@ export class ContactCardComponent implements OnInit{
     const userId = this.authService.getCurrentUser()?.id;
     this.webSocketService.subscribe(`/topic/${userId}`, (message: IMessage) => {
       const messageBody: ChatMessage = JSON.parse(message.body);
-      console.log(messageBody);
       if(messageBody.userConnection && messageBody.userConnection.connectionId == this.friend.connectionId) {
         if (messageBody.messageType === MessageType.FRIEND_OFFLINE) {
           this.friend.isOnline = false;

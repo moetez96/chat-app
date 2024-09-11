@@ -23,7 +23,7 @@
     </div>
   </div>
   <div class="chat-footer">
-    <input type="text" placeholder="Type you message here...">
-    <button class="send-message">Send message</button>
+    <input type="text" placeholder="Type you message here..." [(ngModel)]="message">
+    <button class="send-message" (click)="sendMessage()">Send message</button>
   </div>
 </div>
