@@ -35,6 +35,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   chatMessages: ChatMessage[] = [];
   currentUser: CurrentUser | null = null;
   message: string = "";
+  isOnline: boolean = false;
+  friendUserName: string | null = null;
 
   @ViewChild('messagesContainer') private messagesContainerRef!: ElementRef;
   @ViewChild('messagesEnd') private messagesEndRef!: ElementRef;
@@ -45,6 +47,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     this.selectedFriendSubscription = this.selectedFriendSubject.subscribe(friend => {
       if (friend) {
         this.currentUser = this.authService.getCurrentUser();
+        this.isOnline = friend.isOnline;
+        this.friendUserName = friend.connectionUsername;
         this.loadConversationMessages(friend.convId, friend.connectionId);
         this.subscribeToConversation(friend.convId, friend.connectionId);
       } else {
@@ -67,8 +71,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
       const newFriend = changes['selectedFriend'].currentValue;
       if (newFriend) {
         this.currentUser = this.authService.getCurrentUser();
+        this.friendUserName = newFriend.connectionUsername;
+        this.isOnline = newFriend.isOnline;
         this.loadConversationMessages(newFriend.convId, newFriend.connectionId);
-        this.subscribeToConversation(newFriend.convId, newFriend.connectionId);      }
+        this.subscribeToConversation(newFriend.convId, newFriend.connectionId);
+      }
     }
   }
 

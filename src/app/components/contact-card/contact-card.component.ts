@@ -23,20 +23,5 @@ export class ContactCardComponent implements OnInit{
   }
 
   ngOnInit() {
-    const userId = this.authService.getCurrentUser()?.id;
-    this.webSocketService.subscribe(`/topic/${userId}`, (message: IMessage) => {
-      const messageBody: ChatMessage = JSON.parse(message.body);
-      if(messageBody.userConnection && messageBody.userConnection.connectionId == this.friend.connectionId) {
-        if (messageBody.messageType === MessageType.FRIEND_OFFLINE) {
-          this.friend.isOnline = false;
-        } else if (messageBody.messageType === MessageType.FRIEND_ONLINE) {
-          this.friend.isOnline = true;
-        }
-      } else if (messageBody.senderId  && messageBody.senderId == this.friend.connectionId) {
-        if (messageBody.messageType === MessageType.CHAT || messageBody.messageType === MessageType.UNSEEN) {
-          this.friend.unSeen++;
-        }
-      }
-    });
   }
 }
