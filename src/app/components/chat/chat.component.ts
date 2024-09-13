@@ -6,16 +6,17 @@ import {
   ElementRef,
   ViewChild,
   AfterViewChecked,
-  SimpleChanges, OnChanges
+  SimpleChanges,
+  OnChanges
 } from '@angular/core';
 import { ChatMessage } from "../../models/ChatMessage";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { IMessage } from "@stomp/stompjs";
 import { ConversationService } from "../../services/conversation.service";
-import {BehaviorSubject, Subscription} from 'rxjs';
-import {AuthService} from "../../services/auth.service";
-import {CurrentUser} from "../../models/CurrentUser";
-import {Friend} from "../../models/Friend";
+import { Subscription } from 'rxjs';
+import { AuthService } from "../../services/auth.service";
+import { CurrentUser } from "../../models/CurrentUser";
+import { Friend } from "../../models/Friend";
 
 @Component({
   selector: 'app-chat',
@@ -25,12 +26,7 @@ import {Friend} from "../../models/Friend";
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
 
   @Input()
-  set selectedFriend(value: Friend | null) {
-    this.selectedFriendSubject.next(value);
-  }
-
-  private selectedFriendSubject = new BehaviorSubject<Friend | null>(null);
-  private selectedFriendSubscription!: Subscription;
+  selectedFriend: Friend | null = null;
 
   chatMessages: ChatMessage[] = [];
   currentUser: CurrentUser | null = null;
@@ -44,21 +40,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   constructor(private authService: AuthService, private webSocketService: WebSocketService, private conversationService: ConversationService) { }
 
   ngOnInit() {
-    this.selectedFriendSubscription = this.selectedFriendSubject.subscribe(friend => {
-      if (friend) {
-        this.currentUser = this.authService.getCurrentUser();
-        this.isOnline = friend.isOnline;
-        this.friendUserName = friend.connectionUsername;
-        this.loadConversationMessages(friend.convId, friend.connectionId);
-        this.subscribeToConversation(friend.convId, friend.connectionId);
-      } else {
-        console.log("Friend not selected")
-      }
-    });
-  }
-
-  ngAfterViewChecked() {
-    this.scrollToBottom();
+    if (this.selectedFriend) {
+      this.handleSelectedFriend(this.selectedFriend);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -70,23 +54,27 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
       const newFriend = changes['selectedFriend'].currentValue;
       if (newFriend) {
-        this.currentUser = this.authService.getCurrentUser();
-        this.friendUserName = newFriend.connectionUsername;
-        this.isOnline = newFriend.isOnline;
-        this.loadConversationMessages(newFriend.convId, newFriend.connectionId);
-        this.subscribeToConversation(newFriend.convId, newFriend.connectionId);
+        this.handleSelectedFriend(newFriend);
       }
     }
   }
 
-  ngOnDestroy() {
-    if (this.selectedFriendSubscription) {
-      this.selectedFriendSubscription.unsubscribe();
-    }
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
 
-    if (this.selectedFriendSubject.value) {
-      this.webSocketService.unsubscribe(`/topic/${this.selectedFriendSubject.value?.convId}`);
+  ngOnDestroy() {
+    if (this.selectedFriend) {
+      this.webSocketService.unsubscribe(`/topic/${this.selectedFriend.convId}`);
     }
+  }
+
+  private handleSelectedFriend(friend: Friend) {
+    this.currentUser = this.authService.getCurrentUser();
+    this.isOnline = friend.isOnline;
+    this.friendUserName = friend.connectionUsername;
+    this.loadConversationMessages(friend.convId, friend.connectionId);
+    this.subscribeToConversation(friend.convId, friend.connectionId);
   }
 
   loadConversationMessages(convId: string, connectionId: string) {
@@ -106,7 +94,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     this.webSocketService.subscribe(`/topic/${convId}`, (message: IMessage) => {
       const messageBody: ChatMessage = JSON.parse(message.body);
 
-      if (this.selectedFriendSubject.value?.convId === convId) {
+      if (this.selectedFriend?.convId === convId) {
         if (((messageBody.senderId == this.currentUser?.id && messageBody.receiverId == connectionId) ||
             (messageBody.senderId == connectionId && messageBody.receiverId == this.currentUser?.id))
           && !this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
@@ -116,7 +104,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     });
   }
 
-
   private scrollToBottom(): void {
     const messagesWrapper = this.messagesContainerRef.nativeElement;
     const messagesEnd = this.messagesEndRef.nativeElement;
@@ -125,7 +112,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
   sendMessage() {
     if (this.message !== "") {
-      const selectedFriend = this.selectedFriendSubject.value;
+      const selectedFriend = this.selectedFriend;
       if (selectedFriend?.convId) {
         this.webSocketService.publish(`/app/chat/sendMessage/${selectedFriend.convId}`,
           {

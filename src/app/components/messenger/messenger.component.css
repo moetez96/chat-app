@@ -27,7 +27,6 @@
 
 .contacts-container {
   position: relative;
-  overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
   scroll-behavior: smooth;

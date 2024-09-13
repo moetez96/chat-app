@@ -25,7 +25,7 @@ export class WebSocketService {
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-      debug: (str) => console.log('STOMP debug:', str),
+     // debug: (str) => console.log('STOMP debug:', str),
       onConnect: (frame) => {
         console.log('Connected to STOMP server:', frame);
         this.connectionStateSubject.next(true);
@@ -69,6 +69,8 @@ export class WebSocketService {
   }
 
   subscribe(topic: string, callback: (message: IMessage) => void) {
+    console.log(this.subscriptions);
+
     if (this.subscriptions.has(topic)) {
       console.warn(`Subscription to topic '${topic}' already exists. Skipping re-subscription.`);
       return;

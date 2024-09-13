@@ -31,6 +31,7 @@
       const userId = this.authService.getCurrentUser()?.id;
       this.webSocketService.subscribe(`/topic/${userId}`, (message: IMessage) => {
         const messageBody: ChatMessage = JSON.parse(message.body);
+        console.log(messageBody);
           this.friendsList = this.friendsList.map((friend) => {
           if(messageBody.userConnection && messageBody.userConnection.connectionId == friend.connectionId) {
             if (messageBody.messageType === MessageType.FRIEND_OFFLINE) {
