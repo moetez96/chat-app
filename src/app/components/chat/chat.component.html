@@ -12,21 +12,28 @@
       <ng-container *ngFor="let message of chatMessages; let i = index">
 
         <ng-container *ngIf="i === 0 || !DateUtils.isSameDay(chatMessages[i-1]?.time, message.time)">
-          <div class="today-separator">
+          <div class="today-separator" >
             <hr>
             <span *ngIf="DateUtils.isToday(message.time)">TODAY</span>
             <span *ngIf="!DateUtils.isToday(message.time)">{{ message.time | date:'dd/MM/yyyy' }}</span>
+            <hr>
           </div>
         </ng-container>
 
         <div class="chat-message-container">
           <div class="chat-message"
-               [style.right]="currentUser?.id === message.senderId ? '20px' : 'none'"
+               [ngClass]="{'sent': currentUser?.id === message.senderId}"
                [style.background-color]="currentUser?.id === message.senderId ? '#D7FCD2' : ''">
             <p>{{ message.content }}</p>
             <div class="chat-message-metadata"
                  [style.flex-direction]="currentUser?.id === message.senderId ? 'flex-end' : ''">
-              <p>{{ message.time | date:'HH:mm' }}
+              <p>
+                <ng-container *ngIf="DateUtils.isToday(message.time); else notToday">
+                  {{ message.time | date:'HH:mm' }}
+                </ng-container>
+                <ng-template #notToday>
+                  {{ message.time | date:'MMM d, HH:mm' }}
+                </ng-template>
                 <ng-container *ngIf="currentUser?.id === message.senderId">
                   <svg width="15" height="12" viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg"
                        *ngIf="message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.NOT_DELIVERED || message.messageType === MessageType.UNSEEN">
