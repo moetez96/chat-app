@@ -4,6 +4,7 @@ import {SignupRequest} from "../models/SignupRequest";
 import {Observable} from "rxjs";
 import {AuthService} from "./auth.service";
 import {Friend} from "../models/Friend";
+import {ChatMessage} from "../models/ChatMessage";
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,14 @@ export class FriendsService {
     });
 
     return this.http.get(`${this.apiUrl}conversation/unseenMessages`, { headers });
+  }
+
+  getLastMessage(convId: string): Observable<ChatMessage> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
+
+    return this.http.get<ChatMessage>(`${this.apiUrl}conversation/getLastMessage/${convId}`, { headers });
   }
 
 }

@@ -6,6 +6,29 @@
   max-height: 100%;
 }
 
+.contact {
+  position: relative;
+  min-height: 50px;
+  width: 95%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  padding-left: 2px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.active {
+  background-color: #EEEEEE;
+}
+
+.contact:hover {
+  background-color: #c2c1c1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
 .contacts-wrapper {
   width: auto;
   height: 100%;
@@ -28,7 +51,7 @@
 .contacts-container {
   position: relative;
   overflow-y: auto;
-  width: 100%;
+  width: auto;
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -44,7 +67,7 @@
   align-items: center;
   gap: 17px;
   position: absolute;
-  width: auto;
+  width: 100%;
   padding-bottom: 20px;
 }
 

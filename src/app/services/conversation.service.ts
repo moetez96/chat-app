@@ -21,4 +21,13 @@ export class ConversationService {
 
     return this.http.get<ChatMessage[]>(`${this.apiUrl}conversation/getConversationMessages/${convId}`, { headers });
   }
+
+  setReadMessages(chatMessages: ChatMessage[]): Observable<ChatMessage[]> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
+
+    return this.http.put<ChatMessage[]>(`${this.apiUrl}conversation/setReadMessages`, chatMessages, { headers });
+  }
+
 }
