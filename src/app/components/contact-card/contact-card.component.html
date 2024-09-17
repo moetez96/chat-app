@@ -6,7 +6,13 @@
     <p class="contact-conv" [style.font-weight]="friend.unSeen !== 0 ? 'bolder' : 'normal'" *ngIf="friend.lastMessage">{{friend.lastMessage.senderId === currentUser?.id ? "You: " : friend.connectionUsername + ": "}} {{friend.lastMessage.content}}</p>
     <p class="contact-conv" *ngIf="!friend.lastMessage">Start your conversation with {{friend.connectionUsername}}</p>
   </div>
-  <div class="contact-date">16:45</div>
+  <div class="contact-date">
+    <ng-container *ngIf="DateUtils.isToday(friend.lastMessage?.time); else notToday">
+      {{ friend.lastMessage?.time | date:'shortTime' }}
+    </ng-container>
+    <ng-template #notToday>
+      {{ friend.lastMessage?.time | date:'medium' }}
+    </ng-template>  </div>
   <div class="contact-seen">
     <div class="messages-seen" *ngIf="friend.unSeen !== 0">
       {{ friend.unSeen }}

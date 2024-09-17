@@ -18,6 +18,7 @@ import {CurrentUser} from "../../models/CurrentUser";
 import {Friend} from "../../models/Friend";
 import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
 import {MessageType} from "../../models/enums/MessageType";
+import {DateUtils} from "../../utils/DateUtils";
 
 @Component({
   selector: 'app-chat',
@@ -183,6 +184,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
             content: this.message,
             receiverId: selectedFriend.connectionId,
             receiverUsername: selectedFriend.connectionUsername,
+            time: Date.now()
           });
       }
       this.message = "";
@@ -191,4 +193,5 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
   protected readonly MessageDeliveryStatusEnum = MessageDeliveryStatusEnum;
   protected readonly MessageType = MessageType;
+  protected readonly DateUtils = DateUtils;
 }

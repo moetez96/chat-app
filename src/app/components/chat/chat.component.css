@@ -118,3 +118,30 @@
   background-color: #333333;
   color: #D6D6D6;
 }
+
+.today-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  margin: 10px 0;
+}
+
+.today-separator hr {
+  flex-grow: 1;
+  border: none;
+  border-top: 1px solid rgb(128, 128, 128);
+  margin: 0 10px;
+}
+
+.today-separator span {
+  white-space: nowrap;
+  color: rgb(128, 128, 128);
+  font-weight: bold;
+  position: absolute;
+  background-color: #D3D3D3;
+  padding: 0 10px;
+}
+
+

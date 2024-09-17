@@ -7,6 +7,7 @@ import {AuthService} from "../../services/auth.service";
 import {MessageType} from "../../models/enums/MessageType";
 import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
 import {CurrentUser} from "../../models/CurrentUser";
+import {DateUtils} from "../../utils/DateUtils";
 
 @Component({
   selector: 'app-contact-card',
@@ -33,4 +34,5 @@ export class ContactCardComponent implements OnInit{
   }
 
   protected readonly MessageDeliveryStatusEnum = MessageDeliveryStatusEnum;
+  protected readonly DateUtils = DateUtils;
 }

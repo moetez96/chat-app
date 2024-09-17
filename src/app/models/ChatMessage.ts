@@ -14,4 +14,5 @@ export interface ChatMessage {
   userConnection: UserConnection;
   messageDeliveryStatusEnum: MessageDeliveryStatusEnum;
   messageDeliveryStatusUpdates: MessageDeliveryStatusUpdate[];
+  time: Date;
 }
