@@ -16,7 +16,6 @@ import {WebSocketService} from "../../socket/WebSocketService";
 export class HomeComponent implements OnInit, OnDestroy {
   currentUser: CurrentUser | null = null;
   friendsList: Friend[] = [];
-  public interval: number = 1;
 
   constructor(private authService: AuthService,
               private friendsService: FriendsService,

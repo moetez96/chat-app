@@ -12,6 +12,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { MessengerComponent } from './components/messenger/messenger.component';
 import { ContactCardComponent } from './components/contact-card/contact-card.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { ContactsComponent } from './contacts/contacts.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { ChatComponent } from './components/chat/chat.component';
     NavbarComponent,
     MessengerComponent,
     ContactCardComponent,
-    ChatComponent
+    ChatComponent,
+    ContactsComponent
   ],
   imports: [
     BrowserModule,

@@ -1,35 +1,68 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Friend} from "../../models/Friend";
-import {IMessage} from "@stomp/stompjs";
-import {ChatMessage} from "../../models/ChatMessage";
-import {MessageType} from "../../models/enums/MessageType";
-import {WebSocketService} from "../../socket/WebSocketService";
-import {AuthService} from "../../services/auth.service";
-import {FriendsService} from "../../services/friends.service";
-import {tap} from 'rxjs/operators';
-import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
+import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
+import { Friend } from "../../models/Friend";
+import { IMessage } from "@stomp/stompjs";
+import { ChatMessage } from "../../models/ChatMessage";
+import { MessageType } from "../../models/enums/MessageType";
+import { WebSocketService } from "../../socket/WebSocketService";
+import { AuthService } from "../../services/auth.service";
+import { FriendsService } from "../../services/friends.service";
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { MessageDeliveryStatusEnum } from "../../models/enums/MessageDeliveryStatusEnum";
 
 @Component({
   selector: 'app-messenger',
   templateUrl: './messenger.component.html',
   styleUrl: './messenger.component.css'
 })
-export class MessengerComponent implements OnInit, OnChanges {
+export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   friendsList: Friend[] = [];
 
   selectedFriend: Friend | null = null;
+  currentUser: any = null;
 
-  constructor(private webSocketService: WebSocketService, private authService: AuthService, private friendsService: FriendsService) {
-  }
+  constructor(
+    private webSocketService: WebSocketService,
+    private authService: AuthService,
+    private friendsService: FriendsService
+  ) {}
 
-  ngOnInit() {
-    if (this.friendsList.length > 0) {
-      this.selectedFriend = this.friendsList[0];
-    } else {
-      console.log("Friends List is empty");
-    }
+  ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+
+    // Fetch friends and unseen messages
+    forkJoin({
+      friends: this.friendsService.getFriends(),
+      unseenMessages: this.friendsService.getUnseenMessages()
+    }).subscribe({
+      next: ({ friends, unseenMessages }) => {
+        if (unseenMessages && unseenMessages.length > 0) {
+          unseenMessages.forEach((u: any) => {
+            const friend = friends.find(f => f.connectionId === u.fromUser);
+            if (friend) {
+              friend.unSeen = u.count;
+            }
+          });
+        }
+        this.friendsList = friends;
+
+        if (this.friendsList.length > 0) {
+          this.selectedFriend = this.friendsList[0];
+        }
+
+        console.log(this.friendsList);
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error.status);
+      }
+    });
+
+    const token = this.authService.getToken();
+    const url = 'ws://127.0.0.1:8080/ws';
+
+    this.webSocketService.connect(url, token);
 
     const userId = this.authService.getCurrentUser()?.id;
     this.webSocketService.subscribe(`/topic/${userId}`, (message: IMessage) => {
@@ -45,7 +78,7 @@ export class MessengerComponent implements OnInit, OnChanges {
           }
         }
 
-        if (messageBody.content && messageBody.senderId === friend.connectionId ||  messageBody.receiverId === friend.connectionId) {
+        if (messageBody.content && messageBody.senderId === friend.connectionId || messageBody.receiverId === friend.connectionId) {
           friend.lastMessage = messageBody;
         }
 
@@ -53,7 +86,7 @@ export class MessengerComponent implements OnInit, OnChanges {
       });
 
       if (this.selectedFriend && messageBody.userConnection?.connectionId === this.selectedFriend.connectionId) {
-        this.selectedFriend = {...this.selectedFriend, isOnline: messageBody.messageType === MessageType.FRIEND_ONLINE};
+        this.selectedFriend = { ...this.selectedFriend, isOnline: messageBody.messageType === MessageType.FRIEND_ONLINE };
       }
     });
   }
@@ -89,9 +122,13 @@ export class MessengerComponent implements OnInit, OnChanges {
   friendSeenCounterUpdate(updatedFriend: Friend) {
     this.friendsList = this.friendsList.map(friend =>
       friend.connectionId === updatedFriend.connectionId
-        ? {...friend, unSeen: updatedFriend.unSeen, lastMessage: updatedFriend.lastMessage}
+        ? { ...friend, unSeen: updatedFriend.unSeen, lastMessage: updatedFriend.lastMessage }
         : friend
     );
+  }
+
+  ngOnDestroy() {
+    this.webSocketService.disconnect();
   }
 
 }

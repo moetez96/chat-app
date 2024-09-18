@@ -1,4 +1,14 @@
 <div class="app-wrapper">
-  <router-outlet> </router-outlet>
+  <div class="main-page-wrapper" *ngIf="showNavbar">
+      <app-navbar></app-navbar>
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!showNavbar">
+    <router-outlet> </router-outlet>
+  </ng-container>
+
 </div>
 
