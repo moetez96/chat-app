@@ -76,5 +76,7 @@
 .settings-icon {
   margin: 0;
   padding: 0;
+  width: max-content;
+  height: max-content;
   cursor: pointer;
 }
