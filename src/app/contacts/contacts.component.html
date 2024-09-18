@@ -1,1 +1,11 @@
-<p>contacts works!</p>
+<form class="search-contact-form" (ngSubmit)="searchContacts()">
+  <input type="text" placeholder="Search for friends" name="searchText" [(ngModel)]="searchText">
+  <button type="submit">Search</button>
+</form>
+
+<hr>
+
+<div class="contact-list">
+
+</div>
+

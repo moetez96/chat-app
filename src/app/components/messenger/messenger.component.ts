@@ -131,4 +131,7 @@ export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
     this.webSocketService.disconnect();
   }
 
+  searchFriends() {
+
+  }
 }

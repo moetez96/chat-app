@@ -60,8 +60,16 @@
     </div>
 
   </div>
-  <div class="chat-footer">
-    <input type="text" placeholder="Type you message here..." [(ngModel)]="message">
-    <button class="send-message" (click)="sendMessage()">Send message</button>
-  </div>
+  <form class="chat-form" (ngSubmit)="sendMessage()">
+    <input
+      type="text"
+      placeholder="Type your message here..."
+      [(ngModel)]="message"
+      (keydown.enter)="sendMessage()"
+      name="message"
+      required
+    >
+    <button type="submit" class="send-message">Send message</button>
+  </form>
+
 </div>

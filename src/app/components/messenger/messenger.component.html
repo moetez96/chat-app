@@ -1,10 +1,10 @@
 <div class="messenger-wrapper">
   <div class="contacts-wrapper">
-    <div class="contacts-header">
+    <form class="contacts-header" (ngSubmit)="searchFriends()">
       <h1>Messages</h1>
       <input type="text" placeholder="Search">
       <p>Sort by <span>Newest</span></p>
-    </div>
+    </form>
     <div class="contacts-container">
       <div class="contacts-content">
         <ng-container *ngFor="let friend of friendsList">

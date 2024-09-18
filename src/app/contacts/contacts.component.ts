@@ -7,4 +7,10 @@ import { Component } from '@angular/core';
 })
 export class ContactsComponent {
 
+  searchText: string = "";
+
+  searchContacts() {
+    console.log(this.searchText);
+    this.searchText = "";
+  }
 }

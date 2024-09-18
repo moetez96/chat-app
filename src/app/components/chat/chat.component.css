@@ -93,7 +93,7 @@
   color: #858484;
 }
 
-.chat-footer {
+.chat-form {
   width: auto;
   background-color: #FAFAFA;
   display: flex;
@@ -103,13 +103,13 @@
   grid-row: 3 / 4;
 }
 
-.chat-footer > input {
+.chat-form > input {
   background-color: transparent;
   border: 0;
   border-radius: 0;
 }
 
-.chat-footer > button {
+.chat-form > button {
   background-color: transparent;
   border: 0;
   border-radius: 0;
@@ -118,13 +118,15 @@
   font-weight: bold;
   font-size: 16px;
   transition: background-color 0.3s ease, transform 0.1s ease;
+  height: 100%;
+  cursor: pointer;
 }
 
-.chat-footer > button:hover {
+.chat-form > button:hover {
   background-color: #c2c1c1;
 }
 
-.chat-footer > button:active {
+.chat-form > button:active {
   background-color: #333333;
   color: #D6D6D6;
 }
