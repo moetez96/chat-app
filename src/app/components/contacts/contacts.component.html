@@ -1,0 +1,20 @@
+<div class="contacts-wrapper">
+  <form class="search-contact-form" (ngSubmit)="searchContacts()">
+    <input type="text" placeholder="Search for friends" name="searchText" [(ngModel)]="searchText">
+    <button type="submit">Search</button>
+  </form>
+
+  <hr>
+
+  <div class="contact-list">
+    <ng-container *ngFor="let contact of contactsList">
+      <div class="contact-card">
+        <div class="contact-img"></div>
+        <div class="contact-desc">
+          <h4>{{contact.connectionUsername}}</h4>
+          <span (click)="addContact(contact.connectionId)">Contact friend</span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

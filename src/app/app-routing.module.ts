@@ -4,7 +4,7 @@ import {LoginComponent} from "./components/login/login.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {AuthGuard} from "./guards/auth.guard";
 import {MessengerComponent} from "./components/messenger/messenger.component";
-import {ContactsComponent} from "./contacts/contacts.component";
+import {ContactsComponent} from "./components/contacts/contacts.component";
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },

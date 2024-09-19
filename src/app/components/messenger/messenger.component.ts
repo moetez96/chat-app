@@ -17,7 +17,6 @@ import { MessageDeliveryStatusEnum } from "../../models/enums/MessageDeliverySta
 })
 export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
 
-  @Input()
   friendsList: Friend[] = [];
 
   selectedFriend: Friend | null = null;
@@ -32,7 +31,6 @@ export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
 
-    // Fetch friends and unseen messages
     forkJoin({
       friends: this.friendsService.getFriends(),
       unseenMessages: this.friendsService.getUnseenMessages()
