@@ -31,14 +31,6 @@ export class FriendsService {
     return this.http.get<Friend[]>(`${this.apiUrl}contact/friends`, { headers });
   }
 
-  addFriend(friendId: string): Observable<Friend[]> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.authService.getToken()}`
-    });
-
-    return this.http.get<Friend[]>(`${this.apiUrl}contact/addFriend/${friendId}`, { headers });
-  }
-
   getUnseenMessages(): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.authService.getToken()}`

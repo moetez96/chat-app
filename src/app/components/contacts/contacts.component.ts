@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Friend} from "../../models/Friend";
 import {FriendsService} from "../../services/friends.service";
+import {FriendsRequestService} from "../../services/friends-request.service";
 
 @Component({
   selector: 'app-contacts',
@@ -12,7 +13,7 @@ export class ContactsComponent implements OnInit{
   searchText: string = "";
   contactsList: Friend[] = [];
 
-  constructor(private friendsService: FriendsService ) {
+  constructor(private friendsService: FriendsService, private friendsRequestService: FriendsRequestService) {
   }
 
   searchContacts() {
@@ -37,9 +38,9 @@ export class ContactsComponent implements OnInit{
   }
 
   addContact(contactId: string) {
-    this.friendsService.addFriend(contactId).subscribe({
-      next: (contacts) => {
-        this.contactsList = contacts;
+    this.friendsRequestService.sendRequest(contactId).subscribe({
+      next: (friendRequest) => {
+        console.log(friendRequest);
       },
       error: (error) => {
         console.error('Error fetching data:', error.status);

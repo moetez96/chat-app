@@ -15,7 +15,7 @@ import { MessageDeliveryStatusEnum } from "../../models/enums/MessageDeliverySta
   templateUrl: './messenger.component.html',
   styleUrl: './messenger.component.css'
 })
-export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
+export class MessengerComponent implements OnInit, OnChanges {
 
   friendsList: Friend[] = [];
 
@@ -123,10 +123,6 @@ export class MessengerComponent implements OnInit, OnChanges, OnDestroy {
         ? { ...friend, unSeen: updatedFriend.unSeen, lastMessage: updatedFriend.lastMessage }
         : friend
     );
-  }
-
-  ngOnDestroy() {
-    this.webSocketService.disconnect();
   }
 
   searchFriends() {
