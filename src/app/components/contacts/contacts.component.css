@@ -84,3 +84,29 @@ hr {
 .contact-desc > span:hover {
   color: #27AE60;
 }
+
+.contact-options {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+
+.contact-options > button {
+  border-radius: 10px;
+  padding: 5px 8px;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.accept-contact {
+  background-color: #27AE60;
+}
+
+.decline-contact {
+  background-color: #b73333;
+}
+
+.send-request {
+  background-color: #27AE60;
+}

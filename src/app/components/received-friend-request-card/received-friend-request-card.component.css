@@ -1,0 +1,48 @@
+.request-card {
+  height: 80px;
+  min-width: 100%;
+  background-color: #424242;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  border-radius: 15px;
+}
+
+.request-card-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.request-card-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50px;
+  background-color: #858484;
+}
+
+.request-card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.request-card-actions > button {
+  border-radius: 10px;
+  padding: 5px 8px;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.request-card-accept {
+  background-color: #27AE60;
+}
+
+.request-card-decline {
+  background-color: #b73333;
+}
+
+
+
+

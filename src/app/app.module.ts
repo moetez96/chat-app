@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -13,6 +13,11 @@ import { MessengerComponent } from './components/messenger/messenger.component';
 import { ContactCardComponent } from './components/contact-card/contact-card.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { ContactsComponent } from './components/contacts/contacts.component';
+import {
+  ReceivedFriendRequestCardComponent
+} from "./components/received-friend-request-card/received-friend-request-card.component";
+import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
+import {ErrorInterceptor} from "./interceptors/error-interceptor.service";
 
 @NgModule({
   declarations: [
@@ -24,7 +29,8 @@ import { ContactsComponent } from './components/contacts/contacts.component';
     MessengerComponent,
     ContactCardComponent,
     ChatComponent,
-    ContactsComponent
+    ContactsComponent,
+    ReceivedFriendRequestCardComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +39,10 @@ import { ContactsComponent } from './components/contacts/contacts.component';
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

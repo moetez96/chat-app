@@ -1,0 +1,10 @@
+<div class="request-card">
+  <div class="request-card-info">
+    <div class="request-card-img"></div>
+    <p class="request-card-name">{{request.sender.connectionUsername}}</p>
+  </div>
+  <div class="request-card-actions">
+    <button class="request-card-accept" (click)="acceptRequest()">ACCEPT</button>
+    <button class="request-card-decline" (click)="declineRequest()">DECLINE</button>
+  </div>
+</div>

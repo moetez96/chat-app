@@ -11,8 +11,26 @@
       <div class="contact-card">
         <div class="contact-img"></div>
         <div class="contact-desc">
-          <h4>{{contact.connectionUsername}}</h4>
-          <span (click)="addContact(contact.connectionId)">Contact friend</span>
+          <h4>{{ contact.connectionUsername }}</h4>
+
+          <ng-container *ngIf="hasReceivedRequest(contact.connectionId)">
+            <div class="contact-options">
+              <button class="accept-contact" (click)="acceptContact(contact.connectionId)">Accept</button>
+              <button class="decline-contact" (click)="declineRequest(contact.connectionId)">Decline</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="hasSentRequest(contact.connectionId)">
+            <div class="contact-options">
+              <button class="decline-contact" (click)="cancelRequest(contact.connectionId)">Cancel request</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="!hasSentRequest(contact.connectionId) && !hasReceivedRequest(contact.connectionId)">
+            <div class="contact-options">
+              <button class="send-request" (click)="addContact(contact.connectionId)">Send friend request</button>
+            </div>
+          </ng-container>
         </div>
       </div>
     </ng-container>
