@@ -5,15 +5,34 @@
       <input type="text" placeholder="Search">
       <p>Sort by <span>Newest</span></p>
     </form>
+
     <div class="contacts-container">
-      <div class="contacts-content">
+      <div class="contacts-tab">
+        <button class="tab-button"
+                [ngClass]="{'active': selectedTab === 'friends'}"
+                (click)="selectTab('friends')">Friends</button>
+        <button class="tab-button"
+                [ngClass]="{'active': selectedTab === 'requests'}"
+                (click)="selectTab('requests')">Requests</button>
+      </div>
+
+      <div class="contacts-content" *ngIf="selectedTab === 'friends'">
         <ng-container *ngFor="let friend of friendsList">
-          <app-contact-card class="contact" [style.background-color]="selectedFriend?.convId == friend.convId ? '#EEEEEE' : ''"
-                            [friend]="friend" [selectedConvId]="selectedFriend?.convId ?? null"
+          <app-contact-card class="contact"
+                            [ngClass]="{'selected': selectedFriend?.convId == friend.convId}"
+                            [friend]="friend"
+                            [selectedConvId]="selectedFriend?.convId ?? null"
                             (click)="selectConversation(friend)"></app-contact-card>
+        </ng-container>
+      </div>
+
+      <div class="requests-tab-container" *ngIf="selectedTab === 'requests'">
+        <ng-container *ngFor="let request of requestsList">
+          <app-received-friend-request-card [request]="request"></app-received-friend-request-card>
         </ng-container>
       </div>
     </div>
   </div>
+
   <app-chat class="chat-wrapper" [selectedFriend]="selectedFriend" (friendChanged)="friendSeenCounterUpdate($event)"></app-chat>
 </div>

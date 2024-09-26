@@ -9,6 +9,7 @@ import { FriendsService } from "../../services/friends.service";
 import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { MessageDeliveryStatusEnum } from "../../models/enums/MessageDeliveryStatusEnum";
+import {FriendsRequestService} from "../../services/friends-request.service";
 
 @Component({
   selector: 'app-messenger',
@@ -21,21 +22,25 @@ export class MessengerComponent implements OnInit, OnChanges {
 
   selectedFriend: Friend | null = null;
   currentUser: any = null;
+  selectedTab: string = 'friends';
+  requestsList: any[]  = [];
 
   constructor(
     private webSocketService: WebSocketService,
     private authService: AuthService,
-    private friendsService: FriendsService
+    private friendsService: FriendsService,
+    private friendsRequestService: FriendsRequestService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
 
     forkJoin({
+      friendsRequest: this.friendsRequestService.getReceivedRequests(),
       friends: this.friendsService.getFriends(),
       unseenMessages: this.friendsService.getUnseenMessages()
     }).subscribe({
-      next: ({ friends, unseenMessages }) => {
+      next: ({ friendsRequest, friends, unseenMessages }) => {
         if (unseenMessages && unseenMessages.length > 0) {
           unseenMessages.forEach((u: any) => {
             const friend = friends.find(f => f.connectionId === u.fromUser);
@@ -50,7 +55,8 @@ export class MessengerComponent implements OnInit, OnChanges {
           this.selectedFriend = this.friendsList[0];
         }
 
-        console.log(this.friendsList);
+        this.requestsList = friendsRequest;
+        console.log(this.requestsList);
       },
       error: (error) => {
         console.error('Error fetching data:', error.status);
@@ -127,5 +133,9 @@ export class MessengerComponent implements OnInit, OnChanges {
 
   searchFriends() {
 
+  }
+
+  selectTab(tab: string) {
+    this.selectedTab = tab;
   }
 }

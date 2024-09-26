@@ -79,3 +79,39 @@
   max-height: 100%;
   border-left: 1px solid #b0b0b0;
 }
+
+.contacts-tab {
+  overflow: hidden;
+  background-color: #f1f1f1;
+  width: auto;
+  height: max-content;
+}
+
+.contacts-tab > button {
+  background-color: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 10px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+.contacts-tab button:hover {
+  background-color: #ddd;
+}
+
+.contacts-tab button.active {
+  background-color: white;
+}
+
+.requests-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  width: auto;
+  margin: 10px;
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
