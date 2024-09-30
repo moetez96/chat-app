@@ -17,7 +17,6 @@ import {
   ReceivedFriendRequestCardComponent
 } from "./components/received-friend-request-card/received-friend-request-card.component";
 import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
-import {ErrorInterceptor} from "./interceptors/error-interceptor.service";
 
 @NgModule({
   declarations: [
@@ -40,8 +39,7 @@ import {ErrorInterceptor} from "./interceptors/error-interceptor.service";
     FormsModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

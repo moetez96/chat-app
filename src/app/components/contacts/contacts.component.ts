@@ -1,9 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Friend } from "../../models/Friend";
-import { FriendsService } from "../../services/friends.service";
-import { FriendsRequestService } from "../../services/friends-request.service";
-import { FriendRequest } from "../../models/FriendRequest";
-import { forkJoin } from "rxjs";
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Friend} from "../../models/Friend";
+import {FriendsService} from "../../services/friends.service";
+import {FriendsRequestService} from "../../services/friends-request.service";
+import {FriendRequest} from "../../models/FriendRequest";
+import {forkJoin} from "rxjs";
+import {MessageService} from "../../services/message.service";
+import {MessageType} from "../../models/enums/MessageType";
 
 @Component({
   selector: 'app-contacts',
@@ -20,11 +22,33 @@ export class ContactsComponent implements OnInit {
   constructor(
     private friendsService: FriendsService,
     private friendsRequestService: FriendsRequestService,
+    private messageService: MessageService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.fetchContacts();
+    this.messageService.message$.subscribe(message => {
+      if (message) {
+        switch (message.messageType) {
+          case MessageType.FRIEND_REQUEST:
+            this.receivedRequests = this.messageService.addFriendRequest(this.receivedRequests, message);
+            break;
+
+          case MessageType.FRIEND_REQUEST_ACCEPTED:
+            this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
+            break;
+
+          case MessageType.FRIEND_REQUEST_DECLINED:
+            this.sentRequests = this.messageService.removeDeclinedFriendRequest(this.sentRequests, message);
+            break;
+
+          case MessageType.FRIEND_REQUEST_CANCELED:
+            this.receivedRequests = this.messageService.removeCanceledFriendRequest(this.receivedRequests, message);
+            break;
+        }
+      }
+    });
   }
 
   searchContacts() {

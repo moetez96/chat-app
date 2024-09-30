@@ -1,25 +1,23 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Friend } from "../../models/Friend";
-import { IMessage } from "@stomp/stompjs";
 import { ChatMessage } from "../../models/ChatMessage";
-import { MessageType } from "../../models/enums/MessageType";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { AuthService } from "../../services/auth.service";
 import { FriendsService } from "../../services/friends.service";
 import { forkJoin } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { MessageDeliveryStatusEnum } from "../../models/enums/MessageDeliveryStatusEnum";
-import {FriendsRequestService} from "../../services/friends-request.service";
+import { FriendsRequestService } from "../../services/friends-request.service";
+import { MessageService } from '../../services/message.service';
+import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
+import {MessageType} from "../../models/enums/MessageType";
 
 @Component({
   selector: 'app-messenger',
   templateUrl: './messenger.component.html',
-  styleUrl: './messenger.component.css'
+  styleUrls: ['./messenger.component.css']
 })
 export class MessengerComponent implements OnInit, OnChanges {
-
   friendsList: Friend[] = [];
-
   selectedFriend: Friend | null = null;
   currentUser: any = null;
   selectedTab: string = 'friends';
@@ -29,7 +27,8 @@ export class MessengerComponent implements OnInit, OnChanges {
     private webSocketService: WebSocketService,
     private authService: AuthService,
     private friendsService: FriendsService,
-    private friendsRequestService: FriendsRequestService
+    private friendsRequestService: FriendsRequestService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -54,43 +53,16 @@ export class MessengerComponent implements OnInit, OnChanges {
         if (this.friendsList.length > 0) {
           this.selectedFriend = this.friendsList[0];
         }
-
         this.requestsList = friendsRequest;
-        console.log(this.requestsList);
       },
       error: (error) => {
         console.error('Error fetching data:', error.status);
       }
     });
 
-    const token = this.authService.getToken();
-    const url = 'ws://127.0.0.1:8080/ws';
-
-    this.webSocketService.connect(url, token);
-
-    const userId = this.authService.getCurrentUser()?.id;
-    this.webSocketService.subscribe(`/topic/${userId}`, (message: IMessage) => {
-      const messageBody: ChatMessage = JSON.parse(message.body);
-      console.log(messageBody);
-      this.friendsList = this.friendsList.map((friend) => {
-        if (messageBody.userConnection && messageBody.userConnection.connectionId === friend.connectionId) {
-          friend.isOnline = messageBody.messageType === MessageType.FRIEND_ONLINE;
-        } else if (messageBody.senderId && messageBody.senderId === friend.connectionId) {
-          if (messageBody.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED
-            || messageBody.messageType === MessageType.UNSEEN) {
-            friend.unSeen++;
-          }
-        }
-
-        if (messageBody.content && messageBody.senderId === friend.connectionId || messageBody.receiverId === friend.connectionId) {
-          friend.lastMessage = messageBody;
-        }
-
-        return friend;
-      });
-
-      if (this.selectedFriend && messageBody.userConnection?.connectionId === this.selectedFriend.connectionId) {
-        this.selectedFriend = { ...this.selectedFriend, isOnline: messageBody.messageType === MessageType.FRIEND_ONLINE };
+    this.messageService.message$.subscribe(message => {
+      if (message) {
+        this.handleIncomingMessage(message);
       }
     });
   }
@@ -108,6 +80,25 @@ export class MessengerComponent implements OnInit, OnChanges {
         this.selectedFriend = changes['friendsList'].currentValue[0];
       }
     }
+  }
+
+  handleIncomingMessage(message: ChatMessage) {
+    this.friendsList = this.friendsList.map((friend) => {
+      if (message.messageType === MessageType.FRIEND_ONLINE) {
+        this.messageService.updateFriendOnlineStatus(friend, message);
+      }
+
+      if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED || message.messageType === MessageType.UNSEEN) {
+        this.messageService.updateFriendUnseenCount(friend, message);
+      }
+      if (message.content) {
+        this.messageService.updateFriendLastMessage(friend, message);
+      }
+
+      return friend;
+    });
+
+    this.selectedFriend = this.messageService.updateSelectedFriendOnlineStatus(this.selectedFriend, message);
   }
 
   loadLastMessage(currentFriend: Friend) {
@@ -132,7 +123,7 @@ export class MessengerComponent implements OnInit, OnChanges {
   }
 
   searchFriends() {
-
+    // Implement search logic if necessary
   }
 
   selectTab(tab: string) {

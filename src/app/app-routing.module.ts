@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'messenger', component: MessengerComponent, canActivate: [AuthGuard] },
   { path: 'contacts', component: ContactsComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'messenger', pathMatch: 'full' },
-  { path: '**', redirectTo: '/friends' }
+  { path: '**', redirectTo: '/contacts' }
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
