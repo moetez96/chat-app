@@ -68,3 +68,17 @@ input:focus {
 .error-message {
   color: red;
 }
+
+.notifications {
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #D6D6D6;
+  right: 6px;
+  bottom: 9px;
+  background-color: #b73333;
+}

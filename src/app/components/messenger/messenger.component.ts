@@ -10,6 +10,7 @@ import { FriendsRequestService } from "../../services/friends-request.service";
 import { MessageService } from '../../services/message.service';
 import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
 import {MessageType} from "../../models/enums/MessageType";
+import {FriendRequest} from "../../models/FriendRequest";
 
 @Component({
   selector: 'app-messenger',
@@ -63,6 +64,25 @@ export class MessengerComponent implements OnInit, OnChanges {
     this.messageService.message$.subscribe(message => {
       if (message) {
         this.handleIncomingMessage(message);
+
+        if (message.messageType === MessageType.FRIEND_REQUEST) {
+          this.friendsRequestService.getReceivedRequestIds(message.senderId, message.receiverId).subscribe({
+            next: ((response) => {
+              if (this.selectedTab === 'requests') {
+                this.requestsList.push(response);
+                this.messageService.resetUnseenRequest();
+              }
+            }),
+            error: (error) => {
+              console.error('Error fetching data:', error.status);
+            }
+          })
+        }
+
+        if (message.messageType === MessageType.FRIEND_REQUEST_CANCELED) {
+          this.requestsList.filter((req) =>
+            req.sender.connectionId == message.receiverId && req.receiver.connectionId === message.senderId);
+        }
       }
     });
   }
@@ -104,7 +124,6 @@ export class MessengerComponent implements OnInit, OnChanges {
   loadLastMessage(currentFriend: Friend) {
     return this.friendsService.getLastMessage(currentFriend.convId).pipe(
       tap((message: ChatMessage) => {
-        console.log(message);
         currentFriend.lastMessage = message;
       })
     );
@@ -128,5 +147,50 @@ export class MessengerComponent implements OnInit, OnChanges {
 
   selectTab(tab: string) {
     this.selectedTab = tab;
+    if (tab === 'requests') {
+      console.log(this.requestsList)
+      this.friendsRequestService.getReceivedRequests().subscribe({
+        next: ((response) => {
+          this.requestsList = response;
+        }),
+        error: ((err) => console.log(err))
+      })
+
+      if (this.messageService.getUnseenRequests().length > 0) {
+        this.friendsRequestService.seeFriendsRequests().subscribe({
+          next: (response => {
+            this.messageService.resetUnseenRequest();
+          }),
+          error: (err => console.log(err))
+        });
+      }
+    }
+
+    if (tab === 'friends') {
+
+    }
+  }
+
+  get unseenRequestsCount(): number {
+    return this.messageService.getUnseenRequests().length;
+  }
+
+  get unseenMessagesCount(): number {
+    return this.messageService.getUnseenMessages().length;
+  }
+
+  friendRequestAccepted(request: FriendRequest) {
+    this.requestsList = this.requestsList.filter((req) => req !== request)
+    this.friendsService.getFriendById(request.sender.connectionId).subscribe({
+      next: ((friend) => {
+        console.log(friend);
+        this.friendsList.push(friend);
+      }),
+      error: (err => console.log(err))
+    })
+  }
+
+  friendRequestDeclined(request: FriendRequest) {
+    this.requestsList = this.requestsList.filter((req) => req !== request)
   }
 }

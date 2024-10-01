@@ -36,6 +36,7 @@
 }
 
 .nav-option {
+  position: relative;
   width: 60px;
   height: 60px;
   display: flex;
@@ -52,6 +53,7 @@
 }
 
 .nav-option-active {
+  position: relative;
   width: 64px;
   height: 64px;
   background-color: #27AE60;

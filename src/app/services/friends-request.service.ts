@@ -12,7 +12,7 @@ import {handleError, handleResponse} from "../utils/api-handler";
 })
 export class FriendsRequestService {
 
-  private apiUrl = `${environment.apiUrl}/api/request/`;
+  private apiUrl = `${environment.apiUrl}request/`;
 
   constructor(private http: HttpClient) {}
 
@@ -40,6 +40,14 @@ export class FriendsRequestService {
       );
   }
 
+  getReceivedRequestIds(senderId: string, receiverId: string): Observable<FriendRequest> {
+    return this.http.get<ApiResponse<FriendRequest>>(`${this.apiUrl}getReceivedRequestIds/${senderId}/${receiverId}`)
+      .pipe(
+        map(response =>handleResponse(response)),
+        catchError(error => handleError(error))
+      );
+  }
+
   acceptFriendRequest(senderId: string): Observable<any> {
     return this.http.put<ApiResponse<any>>(`${this.apiUrl}acceptFriendRequest/${senderId}`, {})
       .pipe(
@@ -52,8 +60,7 @@ export class FriendsRequestService {
   declineFriendRequest(senderId: string): Observable<any> {
     return this.http.put<ApiResponse<any>>(`${this.apiUrl}declineFriendRequest/${senderId}`, {})
       .pipe(
-        tap(response => console.log('API response:', response)),
-        map(response => handleResponse(response)),
+        tap(response => response),
         catchError(error => handleError(error))
       );
   }
@@ -61,6 +68,23 @@ export class FriendsRequestService {
   cancelFriendRequest(receiverId: string): Observable<any> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}cancelFriendRequest/${receiverId}`)
       .pipe(
+        map(response => handleResponse(response)),
+        catchError(error => handleError(error))
+      );
+  }
+
+  getReceivedUnseenRequests(): Observable<FriendRequest[]> {
+    return this.http.get<ApiResponse<FriendRequest[]>>(`${this.apiUrl}getReceivedUnseenRequests`)
+      .pipe(
+        map(response =>handleResponse(response)),
+        catchError(error => handleError(error))
+      );
+  }
+
+  seeFriendsRequests(): Observable<any> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}seeFriendsRequests`, {})
+      .pipe(
+        tap(response => console.log('API response:', response)),
         map(response => handleResponse(response)),
         catchError(error => handleError(error))
       );

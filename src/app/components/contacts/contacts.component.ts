@@ -6,6 +6,7 @@ import {FriendRequest} from "../../models/FriendRequest";
 import {forkJoin} from "rxjs";
 import {MessageService} from "../../services/message.service";
 import {MessageType} from "../../models/enums/MessageType";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-contacts',
@@ -20,6 +21,7 @@ export class ContactsComponent implements OnInit {
   sentRequests: FriendRequest[] = [];
 
   constructor(
+    private authService: AuthService,
     private friendsService: FriendsService,
     private friendsRequestService: FriendsRequestService,
     private messageService: MessageService,
@@ -36,10 +38,12 @@ export class ContactsComponent implements OnInit {
             break;
 
           case MessageType.FRIEND_REQUEST_ACCEPTED:
+            this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
             this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
             break;
 
           case MessageType.FRIEND_REQUEST_DECLINED:
+            this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
             this.sentRequests = this.messageService.removeDeclinedFriendRequest(this.sentRequests, message);
             break;
 
@@ -63,7 +67,10 @@ export class ContactsComponent implements OnInit {
       contacts: this.friendsService.getAllContacts(),
       friends: this.friendsService.getFriends(),
     }).subscribe({
-      next: ({ receivedRequests, sentRequests, contacts, friends }) => {
+      next: ({ receivedRequests,
+               sentRequests,
+               contacts,
+               friends }) => {
 
         this.contactsList = contacts.filter((contact) =>
           !friends.map((fr) => fr.connectionId).includes(contact.connectionId)
@@ -115,8 +122,6 @@ export class ContactsComponent implements OnInit {
   declineRequest(contactId: string) {
     this.friendsRequestService.declineFriendRequest(contactId).subscribe({
       next: (response) => {
-        console.log('hello declined', this.receivedRequests);
-
         this.receivedRequests = this.receivedRequests.filter((req) => req.sender.connectionId !== contactId);
       },
       error: (error) => {

@@ -10,10 +10,24 @@
       <div class="contacts-tab">
         <button class="tab-button"
                 [ngClass]="{'active': selectedTab === 'friends'}"
-                (click)="selectTab('friends')">Friends</button>
+                (click)="selectTab('friends')">Friends
+          <span class="notifications" *ngIf="unseenMessagesCount > 0">
+            {{ unseenMessagesCount }}
+          </span>
+        </button>
         <button class="tab-button"
                 [ngClass]="{'active': selectedTab === 'requests'}"
-                (click)="selectTab('requests')">Requests</button>
+                (click)="selectTab('requests')">Requests
+          <span class="notifications" *ngIf="unseenRequestsCount > 0">
+            {{ unseenRequestsCount }}
+          </span>
+
+          <span *ngIf="unseenRequestsCount === 0">
+            <span class="notifications notification-count" *ngIf="requestsList.length > 0">
+              {{ requestsList.length }}
+            </span>
+          </span>
+        </button>
       </div>
 
       <div class="contacts-content" *ngIf="selectedTab === 'friends'">
@@ -28,7 +42,10 @@
 
       <div class="requests-tab-container" *ngIf="selectedTab === 'requests'">
         <ng-container *ngFor="let request of requestsList">
-          <app-received-friend-request-card [request]="request"></app-received-friend-request-card>
+          <app-received-friend-request-card [request]="request"
+                                            (requestDeclined)="friendRequestDeclined($event)"
+                                            (requestAccepted)="friendRequestAccepted($event)"
+          ></app-received-friend-request-card>
         </ng-container>
       </div>
     </div>

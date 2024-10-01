@@ -5,4 +5,5 @@ export interface FriendRequest {
   sender: UserConnection;
   receiver: UserConnection;
   createdDate: Date;
+  deliveryStatus: string;
 }

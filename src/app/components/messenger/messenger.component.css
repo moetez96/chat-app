@@ -87,6 +87,21 @@
   height: max-content;
 }
 
+.notifications {
+  right: 2px;
+  top: 4px;
+}
+
+.notification-count {
+  right: 2px;
+  top: 4px;
+  background-color: #424242;
+}
+
+.tab-button {
+  position: relative;
+}
+
 .contacts-tab > button {
   background-color: inherit;
   border: none;
