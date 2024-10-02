@@ -27,8 +27,10 @@ import {DateUtils} from "../../utils/DateUtils";
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
 
-  @Input()
-  selectedFriend: Friend | null = null;
+  @Input() selectedFriend: Friend | null = null;
+  @Output() friendChanged = new EventEmitter<Friend>();
+  @ViewChild('messagesContainer') private messagesContainerRef!: ElementRef;
+  @ViewChild('messagesEnd') private messagesEndRef!: ElementRef;
 
   chatMessages: ChatMessage[] = [];
   currentUser: CurrentUser | null = null;
@@ -36,18 +38,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   isOnline: boolean = false;
   friendUserName: string | null = null;
 
-  @Output() friendChanged = new EventEmitter<Friend>();
 
 
-  @ViewChild('messagesContainer') private messagesContainerRef!: ElementRef;
-  @ViewChild('messagesEnd') private messagesEndRef!: ElementRef;
 
   constructor(private authService: AuthService, private webSocketService: WebSocketService,
               private conversationService: ConversationService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     if (this.selectedFriend) {
-      this.handleSelectedFriend(this.selectedFriend);
+      await this.handleSelectedFriend(this.selectedFriend);
     }
   }
 
@@ -62,16 +61,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
       if (newFriend) {
         this.handleSelectedFriend(newFriend);
       }
-    }
-  }
-
-  ngAfterViewChecked() {
-    this.scrollToBottom();
-  }
-
-  ngOnDestroy() {
-    if (this.selectedFriend) {
-      this.webSocketService.unsubscribe(`/topic/${this.selectedFriend.convId}`);
     }
   }
 
@@ -129,23 +118,37 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
           const messageBody: ChatMessage = JSON.parse(message.body);
 
           if (this.selectedFriend?.convId === convId) {
-            if (((messageBody.senderId == this.currentUser?.id && messageBody.receiverId == connectionId) ||
-                (messageBody.senderId == connectionId && messageBody.receiverId == this.currentUser?.id))
-              && !this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
-              this.chatMessages.push(messageBody);
-            } else if (messageBody.messageType === MessageType.MESSAGE_DELIVERY_UPDATE &&
-              messageBody.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.SEEN) {
-              if (this.selectedFriend) {
-                this.loadConversationMessages(this.selectedFriend.convId, this.selectedFriend.connectionId)
-                  .then(() => {
-                    if (this.chatMessages.length > 0) {
-                      const lastMessage = this.chatMessages[this.chatMessages.length - 1];
-                      console.log(lastMessage);
-                      this.resetFriendViewCounter(this.selectedFriend, lastMessage);
-                    }
-                  })
-                  .catch(error => console.error('Failed to load conversation messages during subscription', error));
+            switch (messageBody.messageType) {
+              case MessageType.CHAT: {
+                if (
+                  (messageBody.senderId === this.currentUser?.id && messageBody.receiverId === connectionId) ||
+                  (messageBody.senderId === connectionId && messageBody.receiverId === this.currentUser?.id)
+                ) {
+                  if (!this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
+                    this.chatMessages.push(messageBody);
+                  }
+                }
+                break;
               }
+
+              case MessageType.MESSAGE_DELIVERY_UPDATE: {
+                if (messageBody.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.SEEN) {
+                  if (this.selectedFriend) {
+                    this.loadConversationMessages(this.selectedFriend.convId, this.selectedFriend.connectionId)
+                      .then(() => {
+                        if (this.chatMessages.length > 0) {
+                          const lastMessage = this.chatMessages[this.chatMessages.length - 1];
+                          console.log(lastMessage);
+                          this.resetFriendViewCounter(this.selectedFriend, lastMessage);
+                        }
+                      })
+                      .catch(error => console.error('Failed to load conversation messages during subscription', error));
+                  }
+                }
+                break;
+              }
+              default:
+                console.warn(`Unhandled message type: ${messageBody.messageType}`);
             }
           }
 
@@ -157,6 +160,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
       }
     });
   }
+
 
   resetFriendViewCounter(friend: Friend | null, lastMessage: ChatMessage | undefined) {
     if (friend) {
@@ -188,6 +192,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
           });
       }
       this.message = "";
+    }
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  ngOnDestroy() {
+    if (this.selectedFriend) {
+      this.webSocketService.unsubscribe(`/topic/${this.selectedFriend.convId}`);
     }
   }
 

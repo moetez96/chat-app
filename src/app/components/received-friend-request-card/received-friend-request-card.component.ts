@@ -3,6 +3,7 @@ import {FriendRequest} from "../../models/FriendRequest";
 import {AuthService} from "../../services/auth.service";
 import {FriendsRequestService} from "../../services/friends-request.service";
 import {Friend} from "../../models/Friend";
+import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
 
 @Component({
   selector: 'app-received-friend-request-card',
@@ -12,17 +13,16 @@ import {Friend} from "../../models/Friend";
 export class ReceivedFriendRequestCardComponent {
 
   @Input() request!: FriendRequest;
-  @Output() requestDeclined = new EventEmitter<FriendRequest>();
-  @Output() requestAccepted = new EventEmitter<FriendRequest>();
 
-  constructor(private authService: AuthService, private friendsRequestService: FriendsRequestService) {
+  constructor(private authService: AuthService,
+              private friendsRequestService: FriendsRequestService,
+              private friendRequestHandlerService: FriendRequestHandlerService) {
   }
 
   acceptRequest() {
     this.friendsRequestService.acceptFriendRequest(this.request.sender.connectionId).subscribe({
       next: ((response) => {
-        console.log(response);
-        this.requestAccepted.emit(this.request)
+        this.friendRequestHandlerService.removeRequest(this.request);
       }),
       error: ((err) => console.log(err)),
     });
@@ -31,8 +31,7 @@ export class ReceivedFriendRequestCardComponent {
   declineRequest() {
     this.friendsRequestService.declineFriendRequest(this.request.sender.connectionId).subscribe({
       next: ((response) => {
-        console.log(response);
-        this.requestDeclined.emit(this.request)
+        this.friendRequestHandlerService.removeRequest(this.request);
       }),
       error: ((err) => console.log(err)),
     });

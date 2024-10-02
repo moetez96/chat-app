@@ -30,24 +30,13 @@
         </button>
       </div>
 
-      <div class="contacts-content" *ngIf="selectedTab === 'friends'">
-        <ng-container *ngFor="let friend of friendsList">
-          <app-contact-card class="contact"
-                            [ngClass]="{'selected': selectedFriend?.convId == friend.convId}"
-                            [friend]="friend"
-                            [selectedConvId]="selectedFriend?.convId ?? null"
-                            (click)="selectConversation(friend)"></app-contact-card>
-        </ng-container>
-      </div>
+      <app-friends-list class="contacts-content" *ngIf="selectedTab === 'friends'"
+                        [selectedFriend]="selectedFriend"
+                        (handleSelectedFriend)="handleSelectedFriend($event)"></app-friends-list>
 
-      <div class="requests-tab-container" *ngIf="selectedTab === 'requests'">
-        <ng-container *ngFor="let request of requestsList">
-          <app-received-friend-request-card [request]="request"
-                                            (requestDeclined)="friendRequestDeclined($event)"
-                                            (requestAccepted)="friendRequestAccepted($event)"
-          ></app-received-friend-request-card>
-        </ng-container>
-      </div>
+      <app-requests-list class="requests-tab-container" *ngIf="selectedTab === 'requests'"
+                         (updateRequests)="handleUpdateAwaitingRequest($event)"></app-requests-list>
+
     </div>
   </div>
 

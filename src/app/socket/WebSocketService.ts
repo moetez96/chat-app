@@ -38,9 +38,9 @@ export class WebSocketService {
         console.error('WebSocket error:', error);
         this.connectionStateSubject.next(false);
       },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000,
+      reconnectDelay: 1000,
+      heartbeatIncoming: 5000,
+      heartbeatOutgoing: 5000,
     });
 
     this.stompClient.activate();
@@ -85,7 +85,7 @@ export class WebSocketService {
         console.error(`STOMP client is not active. Cannot subscribe to topic: ${topic}`);
         setTimeout(() => {
           this.subscribe(topic, callback);
-        }, 5000);
+        }, 1000);
       }
     });
   }

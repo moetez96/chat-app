@@ -4,7 +4,7 @@ import { WebSocketService } from "./socket/WebSocketService";
 import { AuthService } from "./services/auth.service";
 import { IMessage } from "@stomp/stompjs";
 import { ChatMessage } from './models/ChatMessage';
-import { MessageService } from "./services/message.service";
+import { MessageService } from "./shared/message.service";
 import { environment } from "../environments/environment";
 import { filter } from 'rxjs/operators';
 

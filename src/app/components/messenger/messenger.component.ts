@@ -1,169 +1,72 @@
-import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Friend } from "../../models/Friend";
-import { ChatMessage } from "../../models/ChatMessage";
 import { WebSocketService } from "../../socket/WebSocketService";
-import { AuthService } from "../../services/auth.service";
-import { FriendsService } from "../../services/friends.service";
-import { forkJoin } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { FriendsRequestService } from "../../services/friends-request.service";
-import { MessageService } from '../../services/message.service';
-import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
-import {MessageType} from "../../models/enums/MessageType";
-import {FriendRequest} from "../../models/FriendRequest";
+import { MessageService } from '../../shared/message.service';
+import {Subscription} from "rxjs";
+import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
 
 @Component({
   selector: 'app-messenger',
   templateUrl: './messenger.component.html',
   styleUrls: ['./messenger.component.css']
 })
-export class MessengerComponent implements OnInit, OnChanges {
-  friendsList: Friend[] = [];
+export class MessengerComponent implements OnInit, OnDestroy {
+
+  requestsList: any[] = [];
   selectedFriend: Friend | null = null;
-  currentUser: any = null;
   selectedTab: string = 'friends';
-  requestsList: any[]  = [];
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private webSocketService: WebSocketService,
-    private authService: AuthService,
-    private friendsService: FriendsService,
-    private friendsRequestService: FriendsRequestService,
+    private friendRequestHandlerService: FriendRequestHandlerService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-
-    forkJoin({
-      friendsRequest: this.friendsRequestService.getReceivedRequests(),
-      friends: this.friendsService.getFriends(),
-      unseenMessages: this.friendsService.getUnseenMessages()
-    }).subscribe({
-      next: ({ friendsRequest, friends, unseenMessages }) => {
-        if (unseenMessages && unseenMessages.length > 0) {
-          unseenMessages.forEach((u: any) => {
-            const friend = friends.find(f => f.connectionId === u.fromUser);
-            if (friend) {
-              friend.unSeen = u.count;
-            }
-          });
-        }
-        this.friendsList = friends;
-
-        if (this.friendsList.length > 0) {
-          this.selectedFriend = this.friendsList[0];
-        }
-        this.requestsList = friendsRequest;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error.status);
-      }
-    });
-
-    this.messageService.message$.subscribe(message => {
-      if (message) {
-        this.handleIncomingMessage(message);
-
-        if (message.messageType === MessageType.FRIEND_REQUEST) {
-          this.friendsRequestService.getReceivedRequestIds(message.senderId, message.receiverId).subscribe({
-            next: ((response) => {
-              if (this.selectedTab === 'requests') {
-                this.requestsList.push(response);
-                this.messageService.resetUnseenRequest();
-              }
-            }),
-            error: (error) => {
-              console.error('Error fetching data:', error.status);
-            }
-          })
-        }
-
-        if (message.messageType === MessageType.FRIEND_REQUEST_CANCELED) {
-          this.requestsList.filter((req) =>
-            req.sender.connectionId == message.receiverId && req.receiver.connectionId === message.senderId);
-        }
-      }
-    });
+    this.loadRequests();
+    this.subscribeToMessages();
+    this.subscribeToRequestsList();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['friendsList'] && changes['friendsList'].currentValue.length > 0) {
-      if (!this.selectedFriend) {
-        this.friendsList = this.friendsList.map((friend) => {
-          this.loadLastMessage(friend).subscribe({
-            error: (error) => console.log(error)
-          });
-          return friend;
-        });
-
-        this.selectedFriend = changes['friendsList'].currentValue[0];
-      }
-    }
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
-  handleIncomingMessage(message: ChatMessage) {
-    this.friendsList = this.friendsList.map((friend) => {
-      if (message.messageType === MessageType.FRIEND_ONLINE) {
-        this.messageService.updateFriendOnlineStatus(friend, message);
-      }
-
-      if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED || message.messageType === MessageType.UNSEEN) {
-        this.messageService.updateFriendUnseenCount(friend, message);
-      }
-      if (message.content) {
-        this.messageService.updateFriendLastMessage(friend, message);
-      }
-
-      return friend;
-    });
-
-    this.selectedFriend = this.messageService.updateSelectedFriendOnlineStatus(this.selectedFriend, message);
+  loadRequests(): void {
+    this.subscriptions.add(
+      this.friendRequestHandlerService.loadReceivedRequests().subscribe()
+    );
   }
 
-  loadLastMessage(currentFriend: Friend) {
-    return this.friendsService.getLastMessage(currentFriend.convId).pipe(
-      tap((message: ChatMessage) => {
-        currentFriend.lastMessage = message;
+  subscribeToMessages(): void {
+    this.subscriptions.add(
+      this.messageService.message$.subscribe(message => {
+        if (message) {
+          this.friendRequestHandlerService.handleMessage(message);
+        }
       })
     );
   }
 
-  selectConversation(selectedFriend: Friend) {
-    this.selectedFriend = selectedFriend;
-  }
-
-  friendSeenCounterUpdate(updatedFriend: Friend) {
-    this.friendsList = this.friendsList.map(friend =>
-      friend.connectionId === updatedFriend.connectionId
-        ? { ...friend, unSeen: updatedFriend.unSeen, lastMessage: updatedFriend.lastMessage }
-        : friend
+  subscribeToRequestsList(): void {
+    this.subscriptions.add(
+      this.friendRequestHandlerService.requestsList$.subscribe(requests => {
+        this.requestsList = requests;
+      })
     );
   }
 
-  searchFriends() {
-    // Implement search logic if necessary
+
+  friendSeenCounterUpdate(updatedFriend: Friend) {
+    this.selectedFriend = updatedFriend
   }
 
   selectTab(tab: string) {
     this.selectedTab = tab;
-    if (tab === 'requests') {
-      console.log(this.requestsList)
-      this.friendsRequestService.getReceivedRequests().subscribe({
-        next: ((response) => {
-          this.requestsList = response;
-        }),
-        error: ((err) => console.log(err))
-      })
 
-      if (this.messageService.getUnseenRequests().length > 0) {
-        this.friendsRequestService.seeFriendsRequests().subscribe({
-          next: (response => {
-            this.messageService.resetUnseenRequest();
-          }),
-          error: (err => console.log(err))
-        });
-      }
+    if (tab === 'requests') {
+      this.messageService.resetUnseenRequest();
     }
 
     if (tab === 'friends') {
@@ -179,18 +82,17 @@ export class MessengerComponent implements OnInit, OnChanges {
     return this.messageService.getUnseenMessages().length;
   }
 
-  friendRequestAccepted(request: FriendRequest) {
-    this.requestsList = this.requestsList.filter((req) => req !== request)
-    this.friendsService.getFriendById(request.sender.connectionId).subscribe({
-      next: ((friend) => {
-        console.log(friend);
-        this.friendsList.push(friend);
-      }),
-      error: (err => console.log(err))
-    })
+  handleSelectedFriend(selectedFriend: Friend) {
+    if (selectedFriend) {
+      this.selectedFriend = selectedFriend;
+    }
   }
 
-  friendRequestDeclined(request: FriendRequest) {
-    this.requestsList = this.requestsList.filter((req) => req !== request)
+  handleUpdateAwaitingRequest(requests: any) {
+    this.requestsList = requests;
+  }
+
+  searchFriends() {
+    // Implement search logic if necessary
   }
 }

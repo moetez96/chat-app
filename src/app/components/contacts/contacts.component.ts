@@ -4,9 +4,10 @@ import {FriendsService} from "../../services/friends.service";
 import {FriendsRequestService} from "../../services/friends-request.service";
 import {FriendRequest} from "../../models/FriendRequest";
 import {forkJoin} from "rxjs";
-import {MessageService} from "../../services/message.service";
+import {MessageService} from "../../shared/message.service";
 import {MessageType} from "../../models/enums/MessageType";
 import {AuthService} from "../../services/auth.service";
+import {CurrentUser} from "../../models/CurrentUser";
 
 @Component({
   selector: 'app-contacts',
@@ -19,6 +20,7 @@ export class ContactsComponent implements OnInit {
   contactsList: Friend[] = [];
   receivedRequests: FriendRequest[] = [];
   sentRequests: FriendRequest[] = [];
+  currentUser!: CurrentUser | null;
 
   constructor(
     private authService: AuthService,
@@ -29,6 +31,7 @@ export class ContactsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
     this.fetchContacts();
     this.messageService.message$.subscribe(message => {
       if (message) {
@@ -89,7 +92,10 @@ export class ContactsComponent implements OnInit {
   acceptContact(contactId: string) {
     this.friendsRequestService.acceptFriendRequest(contactId).subscribe({
       next: (friendRequest) => {
-        this.contactsList = this.contactsList.filter((friend) => friend.connectionId != contactId);
+        if (this.currentUser) {
+          this.contactsList = this.contactsList.filter((friend) => friend.connectionId != contactId);
+          this.messageService.removeUnseenRequest(contactId, this.currentUser.id);
+        }
       },
       error: (error) => {
         console.error('Error sending request:', error.status);

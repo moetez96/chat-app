@@ -17,6 +17,8 @@ import {
   ReceivedFriendRequestCardComponent
 } from "./components/received-friend-request-card/received-friend-request-card.component";
 import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
+import { FriendsListComponent } from './components/friends-list/friends-list.component';
+import { RequestsListComponent } from './components/requests-list/requests-list.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
     ContactCardComponent,
     ChatComponent,
     ContactsComponent,
-    ReceivedFriendRequestCardComponent
+    ReceivedFriendRequestCardComponent,
+    FriendsListComponent,
+    RequestsListComponent
   ],
   imports: [
     BrowserModule,
