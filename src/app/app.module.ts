@@ -17,8 +17,8 @@ import {
   ReceivedFriendRequestCardComponent
 } from "./components/received-friend-request-card/received-friend-request-card.component";
 import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
-import { FriendsListComponent } from './components/friends-list/friends-list.component';
 import { RequestsListComponent } from './components/requests-list/requests-list.component';
+import {FriendsListComponent} from "./components/friends-list/friends-list.component";
 
 @NgModule({
   declarations: [
@@ -31,8 +31,8 @@ import { RequestsListComponent } from './components/requests-list/requests-list.
     ContactCardComponent,
     ChatComponent,
     ContactsComponent,
-    ReceivedFriendRequestCardComponent,
     FriendsListComponent,
+    ReceivedFriendRequestCardComponent,
     RequestsListComponent
   ],
   imports: [

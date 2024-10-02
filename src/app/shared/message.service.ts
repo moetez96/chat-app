@@ -86,12 +86,15 @@ export class MessageService {
   }
 
   addUnseenMessage(message: SimpleNotif): void {
+    console.log(message);
     const unseenMessages = this.unseenMessagesSubject.getValue();
     const isDuplicate = unseenMessages.some(
       (msg) => msg.senderId === message.senderId && msg.receiverId === message.receiverId
     );
+
     if (!isDuplicate) {
       this.unseenMessagesSubject.next([...unseenMessages, message]);
+      console.log(this.unseenMessagesSubject.getValue())
     }
   }
 

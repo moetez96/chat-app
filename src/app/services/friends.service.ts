@@ -47,9 +47,9 @@ export class FriendsService {
       );
   }
 
-  getUnseenMessages(): Observable<any> {
+  getUnseenMessages(): Observable<ChatMessage[]> {
 
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}conversation/unseenMessages`)
+    return this.http.get<ApiResponse<ChatMessage[]>>(`${this.apiUrl}conversation/unseenMessages`)
       .pipe(
         map(response =>handleResponse(response)),
         catchError(error => handleError(error))

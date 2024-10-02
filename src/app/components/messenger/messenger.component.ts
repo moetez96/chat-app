@@ -4,6 +4,8 @@ import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
 import {Subscription} from "rxjs";
 import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
+import {FriendsListHandlerService} from "../../shared/friends-list-handler.service";
+import {FriendRequest} from "../../models/FriendRequest";
 
 @Component({
   selector: 'app-messenger',
@@ -12,19 +14,26 @@ import {FriendRequestHandlerService} from "../../shared/friend-request-handler.s
 })
 export class MessengerComponent implements OnInit, OnDestroy {
 
-  requestsList: any[] = [];
+  requestsList: FriendRequest[] = [];
+  friendsList: Friend[] = [];
+
   selectedFriend: Friend | null = null;
   selectedTab: string = 'friends';
+  awaitingUnseenMessagesCount: number = 0;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     private webSocketService: WebSocketService,
     private friendRequestHandlerService: FriendRequestHandlerService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private friendsListHandlerService: FriendsListHandlerService,
+
   ) {}
 
   ngOnInit(): void {
     this.loadRequests();
+    this.loadFriends();
     this.subscribeToMessages();
     this.subscribeToRequestsList();
   }
@@ -44,9 +53,15 @@ export class MessengerComponent implements OnInit, OnDestroy {
       this.messageService.message$.subscribe(message => {
         if (message) {
           this.friendRequestHandlerService.handleMessage(message);
+          this.friendsListHandlerService.handleIncomingMessage(message);
         }
       })
     );
+
+    this.friendsListHandlerService.friendsList$.subscribe(friends => {
+      this.friendsList = friends;
+      this.awaitingUnseenMessagesCount = friends.filter((friend) => friend.unSeen > 0).length;
+    });
   }
 
   subscribeToRequestsList(): void {
@@ -57,9 +72,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
     );
   }
 
-
   friendSeenCounterUpdate(updatedFriend: Friend) {
-    this.selectedFriend = updatedFriend
+    this.selectedFriend = updatedFriend;
+    this.friendsListHandlerService.updateFriend(updatedFriend);
   }
 
   selectTab(tab: string) {
@@ -67,11 +82,14 @@ export class MessengerComponent implements OnInit, OnDestroy {
 
     if (tab === 'requests') {
       this.messageService.resetUnseenRequest();
+      this.loadRequests();
     }
 
     if (tab === 'friends') {
-
+      this.messageService.resetUnseenMessages();
+      this.loadFriends();
     }
+
   }
 
   get unseenRequestsCount(): number {
@@ -94,5 +112,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
 
   searchFriends() {
     // Implement search logic if necessary
+  }
+
+  private loadFriends() {
+    this.friendsListHandlerService.loadFriendsAndUnseenMessages();
   }
 }

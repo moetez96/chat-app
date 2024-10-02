@@ -7,6 +7,7 @@ import { MessageType } from "../../models/enums/MessageType";
 import {SimpleNotif} from "../../models/SimpleNotif";
 import {NotificationType} from "../../models/enums/NotificationType";
 import {FriendsRequestService} from "../../services/friends-request.service";
+import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
 
 @Component({
   selector: 'app-navbar',
@@ -42,7 +43,7 @@ export class NavbarComponent implements OnInit {
       this.messageService.message$.subscribe(message => {
         if (message) {
 
-          const simpleNotif: SimpleNotif = {
+          let simpleNotif: SimpleNotif = {
             senderId: message.senderId,
             senderUsername: message.senderUsername,
             receiverId: message.receiverId,
@@ -57,11 +58,19 @@ export class NavbarComponent implements OnInit {
           if (message.messageType === MessageType.FRIEND_REQUEST_CANCELED) {
             this.messageService.removeUnseenRequest(message.senderId, message.receiverId);
           }
-        }
 
+          if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED ||
+            message.messageType === MessageType.UNSEEN) {
+
+            if (message.senderId && message.senderId !== this.authService.getCurrentUser()?.id) {
+
+              simpleNotif.notificationType = NotificationType.MESSAGE;
+              this.messageService.addUnseenMessage(simpleNotif)
+            }
+          }
+        }
       });
     }
-
   }
 
   handleLogout() {

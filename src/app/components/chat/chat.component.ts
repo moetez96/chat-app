@@ -138,7 +138,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
                       .then(() => {
                         if (this.chatMessages.length > 0) {
                           const lastMessage = this.chatMessages[this.chatMessages.length - 1];
-                          console.log(lastMessage);
                           this.resetFriendViewCounter(this.selectedFriend, lastMessage);
                         }
                       })

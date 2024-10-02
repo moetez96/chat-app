@@ -14,6 +14,12 @@
           <span class="notifications" *ngIf="unseenMessagesCount > 0">
             {{ unseenMessagesCount }}
           </span>
+
+          <span *ngIf="unseenMessagesCount === 0">
+            <span class="notifications notification-count" *ngIf="awaitingUnseenMessagesCount > 0">
+              {{ awaitingUnseenMessagesCount }}
+            </span>
+          </span>
         </button>
         <button class="tab-button"
                 [ngClass]="{'active': selectedTab === 'requests'}"
@@ -32,9 +38,11 @@
 
       <app-friends-list class="contacts-content" *ngIf="selectedTab === 'friends'"
                         [selectedFriend]="selectedFriend"
+                        [friendsList]="friendsList"
                         (handleSelectedFriend)="handleSelectedFriend($event)"></app-friends-list>
 
       <app-requests-list class="requests-tab-container" *ngIf="selectedTab === 'requests'"
+                         [requestsList]="requestsList"
                          (updateRequests)="handleUpdateAwaitingRequest($event)"></app-requests-list>
 
     </div>
