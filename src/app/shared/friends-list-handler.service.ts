@@ -1,11 +1,12 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable, tap } from 'rxjs';
-import { Friend } from '../models/Friend';
-import { FriendsService } from '../services/friends.service';
-import { ChatMessage } from '../models/ChatMessage';
-import { MessageType } from '../models/enums/MessageType';
-import { MessageDeliveryStatusEnum } from '../models/enums/MessageDeliveryStatusEnum';
-import {MessageService} from "./message.service";
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, forkJoin, Observable, tap} from 'rxjs';
+import {Friend} from '../models/Friend';
+import {FriendsService} from '../services/friends.service';
+import {ChatMessage} from '../models/ChatMessage';
+import {MessageType} from '../models/enums/MessageType';
+import {MessageDeliveryStatusEnum} from '../models/enums/MessageDeliveryStatusEnum';
+import {MessageService} from './message.service';
+import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,6 @@ export class FriendsListHandlerService {
       unseenMessages: this.friendsService.getUnseenMessages()
     }).subscribe({
       next: ({ friends, unseenMessages }) => {
-
         if (unseenMessages && unseenMessages.length > 0) {
           unseenMessages.forEach((u: any) => {
             const friend = friends.find(f => f.connectionId === u.fromUser);
@@ -35,16 +35,21 @@ export class FriendsListHandlerService {
             }
           });
         }
-        this.friendsListSubject.next(friends.map(friend => {
-          this.loadLastMessage(friend).subscribe({
-            error: (error) => console.log(error)
-          });
-          return friend;
-        }));
+
+        const uniqueFriends = this.removeDuplicates(friends);
+        const lastMessagesObservables = uniqueFriends.map(friend => this.loadLastMessage(friend));
+
+        forkJoin(lastMessagesObservables).subscribe({
+          next: () => {
+            this.friendsListSubject.next(uniqueFriends);
+          },
+          error: (error) => console.log(error)
+        });
       },
       error: (error) => console.error('Error fetching friends:', error)
     });
   }
+
 
   loadLastMessage(friend: Friend): Observable<ChatMessage> {
     return this.friendsService.getLastMessage(friend.convId).pipe(
@@ -61,12 +66,10 @@ export class FriendsListHandlerService {
       }
 
       if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED || message.messageType === MessageType.UNSEEN) {
-
         this.messageService.updateFriendUnseenCount(friend, message);
       }
 
       if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
-
         this.addNewFriend(message.senderId);
       }
 
@@ -77,14 +80,34 @@ export class FriendsListHandlerService {
       return friend;
     });
 
-    this.friendsListSubject.next(updatedFriendsList);
+    this.friendsListSubject.next(this.removeDuplicates(updatedFriendsList));
+  }
+
+  sortFriends(friends: Friend[]): Friend[] {
+    return friends.sort((a, b) => {
+      const timeA = a.lastMessage?.time ? new Date(a.lastMessage.time).getTime() : null;
+      const timeB = b.lastMessage?.time ? new Date(b.lastMessage.time).getTime() : null;
+
+      if (timeA && timeB) {
+        return timeB - timeA;
+      }
+      if (timeA) {
+        return -1;
+      }
+      if (timeB) {
+        return 1;
+      }
+
+      return a.connectionUsername.localeCompare(b.connectionUsername);
+    });
   }
 
   addNewFriend(senderId: string): void {
     this.friendsService.getFriendById(senderId).subscribe({
       next: (friend) => {
-        const updatedFriendsList = [...this.friendsListSubject.getValue(), friend];
-        this.friendsListSubject.next(updatedFriendsList);
+        const currentList = this.friendsListSubject.getValue();
+        const updatedFriendsList = [...currentList, friend];
+        this.friendsListSubject.next(this.removeDuplicates(updatedFriendsList));
       },
       error: (err) => console.log('Error fetching new friend:', err)
     });
@@ -96,7 +119,14 @@ export class FriendsListHandlerService {
 
     if (index !== -1) {
       friendsList[index] = updatedFriend;
-      this.friendsListSubject.next([...friendsList]);
+      this.friendsListSubject.next(this.removeDuplicates(friendsList));
     }
+  }
+
+
+  private removeDuplicates(friends: Friend[]): Friend[] {
+    return friends.filter((friend, index, self) =>
+      index === self.findIndex(f => f.connectionId === friend.connectionId)
+    );
   }
 }

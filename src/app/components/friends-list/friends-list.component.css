@@ -10,3 +10,14 @@
   padding-left: 2px;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.selected {
+  background-color: #c2c1c1;
+  border-radius: 10px;
+}
+
+.contact:hover {
+  background-color: #c2c1c1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}

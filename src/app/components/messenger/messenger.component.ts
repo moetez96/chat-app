@@ -17,9 +17,13 @@ export class MessengerComponent implements OnInit, OnDestroy {
   requestsList: FriendRequest[] = [];
   friendsList: Friend[] = [];
 
+  allRequestsList: FriendRequest[] = [];
+  allFriendsList: Friend[] = [];
+
   selectedFriend: Friend | null = null;
   selectedTab: string = 'friends';
   awaitingUnseenMessagesCount: number = 0;
+  searchText: string = "";
 
   private subscriptions: Subscription = new Subscription();
 
@@ -59,7 +63,8 @@ export class MessengerComponent implements OnInit, OnDestroy {
     );
 
     this.friendsListHandlerService.friendsList$.subscribe(friends => {
-      this.friendsList = friends;
+      this.friendsList = this.friendsListHandlerService.sortFriends(friends);
+      this.allFriendsList = this.friendsList;
       this.awaitingUnseenMessagesCount = friends.filter((friend) => friend.unSeen > 0).length;
     });
   }
@@ -68,6 +73,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.friendRequestHandlerService.requestsList$.subscribe(requests => {
         this.requestsList = requests;
+        this.allRequestsList = requests;
       })
     );
   }
@@ -90,6 +96,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
       this.loadFriends();
     }
 
+    this.searchText = "";
   }
 
   get unseenRequestsCount(): number {
@@ -110,8 +117,22 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.requestsList = requests;
   }
 
-  searchFriends() {
-    // Implement search logic if necessary
+  search() {
+    console.log(this.searchText);
+    if (this.searchText.trim()) {
+      if (this.selectedTab === 'requests') {
+        this.requestsList = this.allRequestsList.filter((request) =>
+          request.sender.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
+        );
+      } else if (this.selectedTab === 'friends') {
+        this.friendsList = this.allFriendsList.filter((friend) =>
+          friend.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
+        );
+      }
+    } else {
+      this.loadRequests();
+      this.loadFriends();
+    }
   }
 
   private loadFriends() {

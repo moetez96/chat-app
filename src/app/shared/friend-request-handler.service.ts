@@ -4,6 +4,7 @@ import { MessageService } from './message.service';
 import { MessageType } from '../models/enums/MessageType';
 import {BehaviorSubject, tap} from 'rxjs';
 import {FriendRequest} from "../models/FriendRequest";
+import {FriendsListHandlerService} from "./friends-list-handler.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class FriendRequestHandlerService {
   requestsList$ = this.requestsListSubject.asObservable();
 
   constructor(
+    private friendsListHandlerService: FriendsListHandlerService,
     private friendsRequestService: FriendsRequestService,
     private messageService: MessageService
   ) {}
@@ -24,17 +26,16 @@ export class FriendRequestHandlerService {
           new Set(requests.map(request => request.id))
         ).map(id => requests.find(request => request.id === id));
 
-        console.log(requests);
-        console.log(uniqueRequests);
-
         this.requestsListSubject.next(requests);
       })
     );
   }
 
   handleMessage(message: any) {
-    console.log(message);
     switch (message.messageType) {
+      case MessageType.FRIEND_REQUEST_ACCEPTED:
+        this.friendsListHandlerService.addNewFriend(message.senderId);
+        break;
       case MessageType.FRIEND_REQUEST:
         this.handleFriendRequest(message.senderId, message.receiverId);
         break;
@@ -64,8 +65,7 @@ export class FriendRequestHandlerService {
         );
 
         if (!isDuplicate) {
-          currentList.push(response);
-          this.requestsListSubject.next(currentList);
+          this.requestsListSubject.next([...currentList, response]);
         }
       },
       error: (error) => {

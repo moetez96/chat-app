@@ -1,9 +1,8 @@
 <div class="messenger-wrapper">
   <div class="contacts-wrapper">
-    <form class="contacts-header" (ngSubmit)="searchFriends()">
+    <form class="contacts-header" >
       <h1>Messages</h1>
-      <input type="text" placeholder="Search">
-      <p>Sort by <span>Newest</span></p>
+      <input type="text" placeholder="Search" name="searchInput" [(ngModel)]="searchText" (input)="search()">
     </form>
 
     <div class="contacts-container">

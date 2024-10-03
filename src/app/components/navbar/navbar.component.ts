@@ -24,6 +24,7 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     if(this.authService.isLoggedIn()) {
       this.friendsRequestService.getReceivedUnseenRequests().subscribe({
         next: (requests) => {
@@ -59,8 +60,8 @@ export class NavbarComponent implements OnInit {
             this.messageService.removeUnseenRequest(message.senderId, message.receiverId);
           }
 
-          if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED ||
-            message.messageType === MessageType.UNSEEN) {
+          if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED
+            || message.messageType === MessageType.UNSEEN) {
 
             if (message.senderId && message.senderId !== this.authService.getCurrentUser()?.id) {
 

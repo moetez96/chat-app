@@ -8,7 +8,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { Friend } from '../../models/Friend';
-import {MessageService} from "../../shared/message.service";
+import { MessageService } from "../../shared/message.service";
 
 @Component({
   selector: 'app-friends-list',
@@ -24,11 +24,11 @@ export class FriendsListComponent implements OnInit, OnChanges {
 
   constructor(private messageService: MessageService) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['friendsList']) {
+
       this.messageService.resetUnseenMessages();
     }
   }

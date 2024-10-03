@@ -3,6 +3,7 @@ import { MessageService } from "../../shared/message.service";
 import { FriendRequest } from "../../models/FriendRequest";
 import { Subscription } from "rxjs";
 import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
+import {FriendsRequestService} from "../../services/friends-request.service";
 
 @Component({
   selector: 'app-requests-list',
@@ -14,7 +15,8 @@ export class RequestsListComponent implements OnInit, OnChanges {
   @Input()  requestsList: FriendRequest[] = [];
   @Output() updateRequests = new EventEmitter<FriendRequest[]>();
 
-  constructor(private messageService: MessageService) {
+  constructor(private friendsRequestService: FriendsRequestService,
+              private messageService: MessageService) {
 
   }
 
@@ -23,6 +25,10 @@ export class RequestsListComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['requestsList']) {
+      this.friendsRequestService.seeFriendsRequests().subscribe({
+        next:((res) => console.log(res)),
+        error:((error) => console.log(error))
+      });
       this.messageService.resetUnseenRequest();
     }
   }
