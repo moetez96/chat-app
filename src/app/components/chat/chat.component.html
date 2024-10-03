@@ -1,14 +1,19 @@
 <div class="chat-container">
   <div class="chat-header">
-    <div class="chat-header-img"></div>
-    <div class="chat-header-desc">
-      <h3 class="chat-header-name">{{friendUserName}}</h3>
-      <p class="chat-header-status" [style.color]="isOnline ? '#27AE60' : 'gray'">{{isOnline ? 'Online' : 'Offline'}}</p>
-    </div>
+    <ng-container *ngIf="selectedFriend">
+      <div class="chat-header-img"></div>
+      <div class="chat-header-desc">
+        <h3 class="chat-header-name">{{friendUserName}}</h3>
+        <p class="chat-header-status" [style.color]="isOnline ? '#27AE60' : 'gray'">{{isOnline ? 'Online' : 'Offline'}}</p>
+      </div>
+    </ng-container>
   </div>
   <div class="chat-messages-wrapper" >
 
-    <div class="chat-messages-container" #messagesContainer>
+    <div class="chat-messages-container-empty-message" *ngIf="!selectedFriend">
+      <h1>No friend selected</h1>
+    </div>
+    <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend">
       <ng-container *ngFor="let message of chatMessages; let i = index">
 
         <ng-container *ngIf="i === 0 || !DateUtils.isSameDay(chatMessages[i-1]?.time, message.time)">
@@ -68,8 +73,9 @@
       (keydown.enter)="sendMessage()"
       name="message"
       required
+      [disabled]="!selectedFriend"
     >
-    <button type="submit" class="send-message">Send message</button>
+    <button type="submit" class="send-message" *ngIf="selectedFriend">Send message</button>
   </form>
 
 </div>

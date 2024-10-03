@@ -9,6 +9,7 @@ import {ContactsComponent} from "./components/contacts/contacts.component";
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent},
+  { path: 'messenger/:id', component: MessengerComponent, canActivate: [AuthGuard] },
   { path: 'messenger', component: MessengerComponent, canActivate: [AuthGuard] },
   { path: 'contacts', component: ContactsComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'messenger', pathMatch: 'full' },

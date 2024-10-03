@@ -6,6 +6,8 @@ import {Subscription} from "rxjs";
 import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
 import {FriendsListHandlerService} from "../../shared/friends-list-handler.service";
 import {FriendRequest} from "../../models/FriendRequest";
+import {ActivatedRoute, Router} from "@angular/router";
+import {FriendsService} from "../../services/friends.service";
 
 @Component({
   selector: 'app-messenger',
@@ -24,6 +26,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   selectedTab: string = 'friends';
   awaitingUnseenMessagesCount: number = 0;
   searchText: string = "";
+  selectedId: string | null = null;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -32,7 +35,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private friendRequestHandlerService: FriendRequestHandlerService,
     private messageService: MessageService,
     private friendsListHandlerService: FriendsListHandlerService,
-
+    private friendsService: FriendsService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +45,23 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.loadFriends();
     this.subscribeToMessages();
     this.subscribeToRequestsList();
+
+    this.route.paramMap.subscribe(params => {
+      this.selectedId = params.get('id');
+      if (this.selectedId) {
+        this.friendsService.getFriendById(this.selectedId).subscribe({
+          next: ((friend) => {
+            this.selectedFriend = friend;
+          }),
+
+          error: ((error) => {
+            console.log(error);
+          })
+        })
+      } else {
+        console.log("No ID provided, default view");
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -107,9 +129,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
     return this.messageService.getUnseenMessages().length;
   }
 
-  handleSelectedFriend(selectedFriend: Friend) {
-    if (selectedFriend) {
-      this.selectedFriend = selectedFriend;
+  handleSelectedFriend(selectedFriend: Friend): void {
+    if (selectedFriend && selectedFriend.connectionId) {
+      this.router.navigate(['/messenger', selectedFriend.connectionId]);
     }
   }
 
