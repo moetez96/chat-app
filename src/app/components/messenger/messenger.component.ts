@@ -161,7 +161,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   }
 
   search() {
-    console.log(this.searchText);
+
     if (this.searchText.trim()) {
       if (this.selectedTab === 'requests') {
         this.requestsList = this.allRequestsList.filter((request) =>

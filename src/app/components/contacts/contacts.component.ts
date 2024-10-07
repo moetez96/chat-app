@@ -18,6 +18,7 @@ export class ContactsComponent implements OnInit {
 
   searchText: string = "";
   contactsList: Friend[] = [];
+  allContactsList: Friend[] = [];
   receivedRequests: FriendRequest[] = [];
   sentRequests: FriendRequest[] = [];
   currentUser!: CurrentUser | null;
@@ -43,6 +44,7 @@ export class ContactsComponent implements OnInit {
           case MessageType.FRIEND_REQUEST_ACCEPTED:
             this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
             this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
+            this.allContactsList = this.contactsList;
             break;
 
           case MessageType.FRIEND_REQUEST_DECLINED:
@@ -59,8 +61,14 @@ export class ContactsComponent implements OnInit {
   }
 
   searchContacts() {
-    console.log(this.searchText);
-    this.searchText = "";
+
+    if (this.searchText.trim()) {
+      this.contactsList = this.allContactsList.filter((request) =>
+        request.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
+      );
+    } else {
+      this.fetchContacts();
+    }
   }
 
   fetchContacts() {
@@ -78,6 +86,7 @@ export class ContactsComponent implements OnInit {
         this.contactsList = contacts.filter((contact) =>
           !friends.map((fr) => fr.connectionId).includes(contact.connectionId)
         );
+        this.allContactsList = this.contactsList;
         this.receivedRequests = receivedRequests;
         this.sentRequests = sentRequests;
 
@@ -94,6 +103,7 @@ export class ContactsComponent implements OnInit {
       next: (friendRequest) => {
         if (this.currentUser) {
           this.contactsList = this.contactsList.filter((friend) => friend.connectionId != contactId);
+          this.allContactsList = this.contactsList;
           this.messageService.removeUnseenRequest(contactId, this.currentUser.id);
         }
       },
