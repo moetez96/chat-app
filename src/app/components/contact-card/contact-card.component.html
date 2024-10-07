@@ -1,4 +1,4 @@
-  <div class="contact-img-container">
+  <div class="contact-img-container" [style.background-color]="friend.avatar ? friend.avatar : '#D6D6D6'">
     <div class="contact-status" [style.background-color]="friend.isOnline ? '#27AE60' : 'gray'"></div>
   </div>
   <div class="contact-description">

@@ -1,6 +1,6 @@
 <div class="request-card">
   <div class="request-card-info">
-    <div class="request-card-img"></div>
+    <div class="request-card-img" [style.background-color]="request.sender.avatar ? request.sender.avatar : '#D6D6D6'"></div>
     <p class="request-card-name">{{request.sender.connectionUsername}}</p>
   </div>
   <div class="request-card-actions">

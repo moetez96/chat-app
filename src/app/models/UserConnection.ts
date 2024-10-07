@@ -3,4 +3,5 @@ export interface UserConnection {
   connectionUsername: string;
   convId: string;
   unSeen: string;
+  avatar: string;
 }

@@ -1,7 +1,7 @@
 <div class="chat-container">
   <div class="chat-header">
     <ng-container *ngIf="selectedFriend">
-      <div class="chat-header-img"></div>
+      <div class="chat-header-img" [style.background-color]="selectedFriend.avatar ? selectedFriend.avatar : '#D6D6D6'"></div>
       <div class="chat-header-desc">
         <h3 class="chat-header-name">{{friendUserName}}</h3>
         <p class="chat-header-status" [style.color]="isOnline ? '#27AE60' : 'gray'">{{isOnline ? 'Online' : 'Offline'}}</p>

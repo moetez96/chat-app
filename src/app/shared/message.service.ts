@@ -59,13 +59,16 @@ export class MessageService {
         connectionId: message.senderId,
         connectionUsername: message.senderUsername,
         convId: '',
-        unSeen: '0'
+        unSeen: '0',
+        avatar: ''
       },
       receiver: {
         connectionId: message.receiverId,
         connectionUsername: message.receiverUsername,
         convId: '',
-        unSeen: '0'
+        unSeen: '0',
+        avatar: ''
+
       },
       createdDate: new Date(),
       deliveryStatus: ''

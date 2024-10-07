@@ -6,5 +6,6 @@ export interface Friend {
   convId: string;
   isOnline: boolean;
   unSeen: number;
+  avatar: string;
   lastMessage: ChatMessage;
 }
