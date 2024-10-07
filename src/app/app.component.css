@@ -16,3 +16,16 @@
   width: 100%;
   height: 100%;
 }
+
+@media (max-width: 1024px) {
+  .main-page-wrapper {
+    grid-template-columns: 64px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-page-wrapper {
+    grid-template-columns: none;
+    grid-template-rows: 64px 1fr;
+  }
+}

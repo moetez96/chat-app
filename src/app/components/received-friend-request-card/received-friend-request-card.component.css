@@ -1,38 +1,44 @@
 .request-card {
-  height: 80px;
-  min-width: 100%;
-  background-color: #424242;
+  position: relative;
+  min-height: 50px;
+  width: auto;
+  cursor: pointer;
+  border-radius: 10px;
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  gap: 10px;
   justify-content: space-between;
-  padding: 5px;
-  border-radius: 15px;
 }
 
 .request-card-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .request-card-img {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50px;
   background-color: #858484;
 }
 
 .request-card-actions {
   display: flex;
-  gap: 10px;
+  gap: 5px;
 }
 
-.request-card-actions > button {
-  border-radius: 10px;
+.request-card-actions > span {
+  border-radius: 50px;
   padding: 5px 8px;
+  width: 30px;
   border: none;
   cursor: pointer;
   color: white;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .request-card-accept {
@@ -42,6 +48,39 @@
 .request-card-decline {
   background-color: #b73333;
 }
+
+@media (max-width: 1024px) {
+  .request-card-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .request-card-actions {
+    gap: 3px;
+  }
+
+  .request-card-actions > span{
+    transform: scale(0.90);
+  }
+}
+
+
+@media (max-width: 768px) {
+
+  .request-card-actions {
+    gap: 1px;
+  }
+
+  .request-card-actions > span{
+    transform: scale(0.80);
+  }
+}
+
+
+@media (max-width: 425px) {
+
+}
+
 
 
 

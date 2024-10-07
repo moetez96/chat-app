@@ -1,13 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { Friend } from "../../models/Friend";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
-import {Subscription} from "rxjs";
-import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
-import {FriendsListHandlerService} from "../../shared/friends-list-handler.service";
-import {FriendRequest} from "../../models/FriendRequest";
-import {ActivatedRoute, Router} from "@angular/router";
-import {FriendsService} from "../../services/friends.service";
+import { Subscription } from "rxjs";
+import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
+import { FriendsListHandlerService } from "../../shared/friends-list-handler.service";
+import { FriendRequest } from "../../models/FriendRequest";
+import { ActivatedRoute, Router } from "@angular/router";
+import { FriendsService } from "../../services/friends.service";
 
 @Component({
   selector: 'app-messenger',
@@ -28,6 +28,8 @@ export class MessengerComponent implements OnInit, OnDestroy {
   searchText: string = "";
   selectedId: string | null = null;
 
+  expand: boolean = false;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -45,6 +47,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.loadFriends();
     this.subscribeToMessages();
     this.subscribeToRequestsList();
+    this.checkScreenWidth();
+
+    window.addEventListener('resize', this.checkScreenWidth.bind(this));
 
     this.route.paramMap.subscribe(params => {
       this.selectedId = params.get('id');
@@ -59,13 +64,26 @@ export class MessengerComponent implements OnInit, OnDestroy {
           })
         })
       } else {
+        if(window.innerWidth <= 768) {
+          this.expand = true;
+        }
         console.log("No ID provided, default view");
       }
     });
   }
 
   ngOnDestroy(): void {
+
     this.subscriptions.unsubscribe();
+    window.removeEventListener('resize', this.checkScreenWidth.bind(this));
+  }
+
+  checkScreenWidth(): void {
+    this.expand = window.innerWidth > 768;
+  }
+
+  changeExpand(): void {
+    this.expand = !this.expand;
   }
 
   loadRequests(): void {
@@ -131,6 +149,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
 
   handleSelectedFriend(selectedFriend: Friend): void {
     if (selectedFriend && selectedFriend.connectionId) {
+      if (window.innerWidth < 768) {
+        this.expand = false;
+      }
       this.router.navigate(['/messenger', selectedFriend.connectionId]);
     }
   }

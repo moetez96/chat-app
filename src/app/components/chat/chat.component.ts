@@ -172,9 +172,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   }
 
   private scrollToBottom(): void {
-    const messagesWrapper = this.messagesContainerRef.nativeElement;
-    const messagesEnd = this.messagesEndRef.nativeElement;
-    messagesWrapper.scrollTop = messagesEnd.offsetTop;
+    if (this.currentUser) {
+      const messagesWrapper = this.messagesContainerRef.nativeElement;
+      const messagesEnd = this.messagesEndRef.nativeElement;
+      messagesWrapper.scrollTop = messagesEnd.offsetTop;
+    }
   }
 
   sendMessage() {

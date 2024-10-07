@@ -82,3 +82,98 @@ input:focus {
   bottom: 9px;
   background-color: #b73333;
 }
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  appearance: none;
+}
+
+@media (max-width: 1024px) {
+  input {
+    min-width: 60px;
+    height: 48px;
+    font-size: 14px;
+  }
+
+  .auth-form > button {
+    min-width: 60px;
+    height: 58px;
+  }
+
+  .auth-form > div > h1 {
+    font-size: 26px;
+  }
+
+  .auth-form > div > h2 {
+    font-size: 24px;
+  }
+
+  .auth-form > p{
+    font-size: 14px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  input {
+    min-width: 50px;
+    font-size: 14px;
+  }
+
+  .auth-form > button {
+    min-width: 50px;
+    height: 58px;
+  }
+
+  .auth-form {
+    width: 338px;
+    padding: 25px 10px;
+    gap: 20px;
+  }
+
+  .auth-form > div > h1 {
+    font-size: 24px;
+  }
+
+  .auth-form > div > h2 {
+    font-size: 22px;
+  }
+}
+
+
+@media (max-width: 425px) {
+  input {
+    font-size: 13px;
+  }
+
+  .auth-form > button {
+    height: 48px;
+  }
+
+  .auth-form {
+    width: 238px;
+    padding: 20px 10px;
+    gap: 15px;
+  }
+
+  .auth-form > div > h1 {
+    font-size: 24px;
+  }
+
+  .auth-form > div > h2 {
+    font-size: 22px;
+  }
+
+  .auth-form > p{
+    font-size: 13px;
+  }
+}

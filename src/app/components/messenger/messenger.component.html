@@ -1,49 +1,57 @@
 <div class="messenger-wrapper">
-  <div class="contacts-wrapper">
-    <form class="contacts-header" >
-      <h1>Messages</h1>
+  <div class="contacts-wrapper" [style.background-color]="expand ? '#FAFAFA' : 'transparent'">
+    <form class="contacts-header" *ngIf="expand">
+      <h1>Chat App</h1>
       <input type="text" placeholder="Search" name="searchInput" [(ngModel)]="searchText" (input)="search()">
     </form>
-
-    <div class="contacts-container">
-      <div class="contacts-tab">
-        <button class="tab-button"
-                [ngClass]="{'active': selectedTab === 'friends'}"
-                (click)="selectTab('friends')">Friends
-          <span class="notifications" *ngIf="unseenMessagesCount > 0">
+    <div class="contacts-tab" *ngIf="expand">
+      <button class="tab-button"
+              [ngClass]="{'active': selectedTab === 'friends'}"
+              (click)="selectTab('friends')">Friends
+        <span class="notifications" *ngIf="unseenMessagesCount > 0">
             {{ unseenMessagesCount }}
           </span>
 
-          <span *ngIf="unseenMessagesCount === 0">
+        <span *ngIf="unseenMessagesCount === 0">
             <span class="notifications notification-count" *ngIf="awaitingUnseenMessagesCount > 0">
               {{ awaitingUnseenMessagesCount }}
             </span>
           </span>
-        </button>
-        <button class="tab-button"
-                [ngClass]="{'active': selectedTab === 'requests'}"
-                (click)="selectTab('requests')">Requests
-          <span class="notifications" *ngIf="unseenRequestsCount > 0">
+      </button>
+      <button class="tab-button"
+              [ngClass]="{'active': selectedTab === 'requests'}"
+              (click)="selectTab('requests')">Requests
+        <span class="notifications" *ngIf="unseenRequestsCount > 0">
             {{ unseenRequestsCount }}
           </span>
 
-          <span *ngIf="unseenRequestsCount === 0">
+        <span *ngIf="unseenRequestsCount === 0">
             <span class="notifications notification-count" *ngIf="requestsList.length > 0">
               {{ requestsList.length }}
             </span>
           </span>
-        </button>
-      </div>
+      </button>
+    </div>
 
+    <div class="contacts-container" *ngIf="expand">
       <app-friends-list class="contacts-content" *ngIf="selectedTab === 'friends'"
                         [selectedFriend]="selectedFriend"
                         [friendsList]="friendsList"
                         (handleSelectedFriend)="handleSelectedFriend($event)"></app-friends-list>
-
       <app-requests-list class="requests-tab-container" *ngIf="selectedTab === 'requests'"
                          [requestsList]="requestsList"
                          (updateRequests)="handleUpdateAwaitingRequest($event)"></app-requests-list>
 
+    </div>
+    <div class="contact-expand">
+      <div class="contact-expand-button" (click)="changeExpand()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="18" height="18" *ngIf="expand">
+          <path style="fill:#232326" d="M12.5 7 23 17.293l-.707.707L12.5 8.414 2.707 18 2 17.293 12.5 7z"/>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="18" height="18" *ngIf="!expand">
+          <path style="fill:#232326" d="M12.5 18 2 7.707 2.707 7l9.793 9.586L22.293 7l.707.707L12.5 18z"/>
+        </svg>
+      </div>
     </div>
   </div>
 

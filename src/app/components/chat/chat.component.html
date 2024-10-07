@@ -17,7 +17,7 @@
       <ng-container *ngFor="let message of chatMessages; let i = index">
 
         <ng-container *ngIf="i === 0 || !DateUtils.isSameDay(chatMessages[i-1]?.time, message.time)">
-          <div class="today-separator" >
+          <div class="today-separator">
             <hr>
             <span *ngIf="DateUtils.isToday(message.time)">TODAY</span>
             <span *ngIf="!DateUtils.isToday(message.time)">{{ message.time | date:'dd/MM/yyyy' }}</span>
@@ -75,7 +75,7 @@
       required
       [disabled]="!selectedFriend"
     >
-    <button type="submit" class="send-message" *ngIf="selectedFriend">Send message</button>
+    <button type="submit" class="send-message" *ngIf="selectedFriend">Send</button>
   </form>
 
 </div>
