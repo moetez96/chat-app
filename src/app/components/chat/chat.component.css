@@ -21,6 +21,7 @@
   width: 64px;
   background-color: rgb(128, 128, 128);
   border-radius: 50px;
+  border: 2px solid white;
 }
 
 .chat-header-desc {
@@ -36,6 +37,7 @@
 }
 
 .chat-messages-wrapper {
+  position: relative;
   width: 100%;
   max-height: 100%;
   overflow: hidden;
@@ -128,6 +130,9 @@
   transition: background-color 0.3s ease, transform 0.1s ease;
   height: 100%;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .chat-form > button:hover {
@@ -160,6 +165,36 @@
   color: rgb(128, 128, 128);
   font-weight: bold;
   background-color: #D3D3D3;
+}
+
+.send-loader {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  position: relative;
+  animation: rotate 1s linear infinite
+}
+
+.send-loader::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0px;
+  border-radius: 50%;
+  border: 5px solid #27AE60;
+  animation: prixClipFix 2s linear infinite ;
+}
+
+@keyframes rotate {
+  100%   {transform: rotate(360deg)}
+}
+
+@keyframes prixClipFix {
+  0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
+  25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
+  50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+  75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 100%)}
+  100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 0)}
 }
 
 @media (max-width: 1024px) {
@@ -236,6 +271,11 @@
   .chat-messages-container-empty-message > h1 {
     font-size: 24px;
   }
+
+  .send-loader {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 @media (max-width: 425px) {
@@ -255,5 +295,10 @@
 
   .chat-messages-container-empty-message > h1 {
     font-size: 20px;
+  }
+
+  .send-loader {
+    width: 28px;
+    height: 28px;
   }
 }

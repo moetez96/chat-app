@@ -37,9 +37,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   message: string = "";
   isOnline: boolean = false;
   friendUserName: string | null = null;
-
-
-
+  loadingSend: boolean = false;
+  loadingConversation: boolean = false;
 
   constructor(private authService: AuthService, private webSocketService: WebSocketService,
               private conversationService: ConversationService) { }
@@ -52,6 +51,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedFriend']) {
+      this.loadingSend = false;
       const previousFriend = changes['selectedFriend'].previousValue;
       if (previousFriend) {
         this.webSocketService.unsubscribe(`/topic/${previousFriend.convId}`);
@@ -78,6 +78,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   }
 
   loadConversationMessages(convId: string, connectionId: string): Promise<void> {
+    this.loadingConversation = true
     return new Promise((resolve, reject) => {
       this.conversationService.getConversationMessages(convId).subscribe({
         next: (response: ChatMessage[]) => {
@@ -93,6 +94,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
         error: (error) => {
           console.error('Failed to get conversation messages', error);
           reject(error);
+        },
+        complete: () => {
+          this.loadingConversation = false;
         }
       });
     });
@@ -126,6 +130,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
                 ) {
                   if (!this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
                     this.chatMessages.push(messageBody);
+                    this.loadingSend = false;
                   }
                 }
                 break;
@@ -181,6 +186,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
   sendMessage() {
     if (this.message !== "") {
+      this.loadingSend = true;
       const selectedFriend = this.selectedFriend;
       if (selectedFriend?.convId) {
         this.webSocketService.publish(`/app/chat/sendMessage/${selectedFriend.convId}`,

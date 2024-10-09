@@ -21,35 +21,43 @@ export class FriendsListHandlerService {
     private messageService: MessageService
   ) {}
 
-  loadFriendsAndUnseenMessages(): void {
-    forkJoin({
-      friends: this.friendsService.getFriends(),
-      unseenMessages: this.friendsService.getUnseenMessages()
-    }).subscribe({
-      next: ({ friends, unseenMessages }) => {
-        if (unseenMessages && unseenMessages.length > 0) {
-          unseenMessages.forEach((u: any) => {
-            const friend = friends.find(f => f.connectionId === u.fromUser);
-            if (friend) {
-              friend.unSeen = u.count;
+  loadFriendsAndUnseenMessages(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      forkJoin({
+        friends: this.friendsService.getFriends(),
+        unseenMessages: this.friendsService.getUnseenMessages()
+      }).subscribe({
+        next: ({ friends, unseenMessages }) => {
+          if (unseenMessages && unseenMessages.length > 0) {
+            unseenMessages.forEach((u: any) => {
+              const friend = friends.find(f => f.connectionId === u.fromUser);
+              if (friend) {
+                friend.unSeen = u.count;
+              }
+            });
+          }
+
+          const uniqueFriends = this.removeDuplicates(friends);
+          const lastMessagesObservables = uniqueFriends.map(friend => this.loadLastMessage(friend));
+
+          forkJoin(lastMessagesObservables).subscribe({
+            next: () => {
+              this.friendsListSubject.next(uniqueFriends);
+              resolve();
+            },
+            error: (error) => {
+              console.log(error);
+              reject(error);
             }
           });
+        },
+        error: (error) => {
+          console.error('Error fetching friends:', error);
+          reject(error);
         }
-
-        const uniqueFriends = this.removeDuplicates(friends);
-        const lastMessagesObservables = uniqueFriends.map(friend => this.loadLastMessage(friend));
-
-        forkJoin(lastMessagesObservables).subscribe({
-          next: () => {
-            this.friendsListSubject.next(uniqueFriends);
-          },
-          error: (error) => console.log(error)
-        });
-      },
-      error: (error) => console.error('Error fetching friends:', error)
+      });
     });
   }
-
 
   loadLastMessage(friend: Friend): Observable<ChatMessage> {
     return this.friendsService.getLastMessage(friend.convId).pipe(

@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import { Friend } from '../../models/Friend';
 import { MessageService } from "../../shared/message.service";
 
@@ -16,11 +24,12 @@ export class FriendsListComponent implements OnInit, OnChanges {
 
   constructor(private messageService: MessageService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['friendsList']) {
-
       this.messageService.resetUnseenMessages();
     }
   }

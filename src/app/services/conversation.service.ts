@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {AuthService} from "./auth.service";
 import {map, Observable} from "rxjs";
-import {Friend} from "../models/Friend";
 import {ChatMessage} from "../models/ChatMessage";
 import {environment} from "../../environments/environment";
 import {ApiResponse} from "../models/ApiResponse";

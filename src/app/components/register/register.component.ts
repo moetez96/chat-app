@@ -15,6 +15,7 @@ export class RegisterComponent implements OnInit {
   errorMessage: string | null = null;
   usernameErrorMessage: string | null = null;
   emailErrorMessage: string | null = null;
+  loading: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService,
               private router: Router) {}
@@ -34,12 +35,14 @@ export class RegisterComponent implements OnInit {
 
   onSubmit(): void {
     this.submitted = true;
+    this.loading = true;
 
     this.usernameErrorMessage = null;
     this.emailErrorMessage = null;
     this.errorMessage = null;
 
     if (this.registerForm.invalid) {
+      this.loading = false;
       return;
     }
 
@@ -56,6 +59,7 @@ export class RegisterComponent implements OnInit {
       },
       error: (error) => {
         console.error('Registration failed', error.status);
+        this.loading = false;
         if (error.status === 400) {
           if (error.error.message.includes('Username')) {
             this.usernameErrorMessage = 'The username is already taken or invalid';
@@ -67,6 +71,9 @@ export class RegisterComponent implements OnInit {
         } else {
           this.errorMessage = error.error.message || 'An error occurred during registration';
         }
+      },
+      complete: () => {
+        this.loading = false;
       }
     });
   }

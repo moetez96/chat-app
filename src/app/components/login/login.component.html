@@ -33,7 +33,9 @@
       </div>
     </div>
 
-    <button type="submit">Login</button>
+    <button type="submit" [disabled]="loading">Login
+      <span class="button-loader" *ngIf="loading"></span>
+    </button>
 
     <p> New User? <span (click)="navigateToRegister()"> Register </span> </p>
   </form>

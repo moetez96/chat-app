@@ -56,7 +56,9 @@
       </div>
     </div>
 
-    <button type="submit">Register</button>
+    <button type="submit" [disabled]="loading">Register
+      <span class="button-loader" *ngIf="loading"></span>
+    </button>
 
     <p> Already have an account? <span (click)="navigateToLogin()"> Login </span> </p>
   </form>

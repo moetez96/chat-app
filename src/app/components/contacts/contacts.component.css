@@ -36,6 +36,7 @@ hr {
 }
 
 .contact-list {
+  position: relative;
   width: 80%;
   height: 150px;
   max-height: 600px;
@@ -67,6 +68,7 @@ hr {
   height: 60px;
   border-radius: 50px;
   background-color: #D6D6D6;
+  border: 2px solid white;
 }
 
 .contact-desc {
@@ -92,12 +94,43 @@ hr {
 }
 
 .contact-options > button {
+  position: relative;
   border-radius: 10px;
   padding: 5px 8px;
   border: none;
   cursor: pointer;
   color: white;
+  transition: background-color 0.3s ease;
 }
+
+.contact-options > button.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  animation: fade 1s ease-in-out infinite;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.contact-options > button.loading {
+  pointer-events: none;
+}
+
 
 .accept-contact {
   background-color: #27AE60;
@@ -139,6 +172,10 @@ hr {
     height: 50px;
   }
 
+  .empty-contact-list {
+    font-size: 16px;
+  }
+
 }
 
 @media (max-width: 768px) {
@@ -172,6 +209,10 @@ hr {
     width: 95%;
     gap: 10px;
   }
+
+  .empty-contact-list {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 474px) {
@@ -181,4 +222,9 @@ hr {
     gap: 10px;
     justify-content: center;
   }
+
+  .empty-contact-list {
+    font-size: 14px;
+  }
+
 }

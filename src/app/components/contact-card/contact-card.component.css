@@ -4,6 +4,7 @@
   min-height: 50px;
   border-radius: 50px;
   background-color: #D6D6D6;
+  border: 2px solid white;
 }
 
 .contact-status {

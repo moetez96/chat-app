@@ -29,6 +29,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   selectedId: string | null = null;
 
   expand: boolean = false;
+  loading: boolean = true;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -73,7 +74,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-
     this.subscriptions.unsubscribe();
     window.removeEventListener('resize', this.checkScreenWidth.bind(this));
   }
@@ -87,8 +87,11 @@ export class MessengerComponent implements OnInit, OnDestroy {
   }
 
   loadRequests(): void {
+    this.loading = true;
     this.subscriptions.add(
-      this.friendRequestHandlerService.loadReceivedRequests().subscribe()
+      this.friendRequestHandlerService.loadReceivedRequests().subscribe(() => {
+        this.loading = false;
+      })
     );
   }
 
@@ -178,7 +181,14 @@ export class MessengerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadFriends() {
-    this.friendsListHandlerService.loadFriendsAndUnseenMessages();
+  private async loadFriends() {
+    this.loading = true;
+    try {
+      await this.friendsListHandlerService.loadFriendsAndUnseenMessages();
+    } catch (error) {
+      console.error('Error loading friends and unseen messages:', error);
+    } finally {
+      this.loading = false;
+    }
   }
 }

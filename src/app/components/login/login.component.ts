@@ -16,6 +16,7 @@ export class LoginComponent {
   usernameErrorMessage: string | null = null;
   passwordErrorMessage: string | null = null;
   errorMessage: string | null = null;
+  loading: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private authService: AuthService, private router: Router) { }
@@ -32,12 +33,14 @@ export class LoginComponent {
 
   onSubmit(): void {
     this.submitted = true;
+    this.loading = true;
 
     this.usernameErrorMessage = null;
     this.passwordErrorMessage = null;
     this.errorMessage = null;
 
     if (this.loginForm.invalid) {
+      this.loading = false;
       return;
     }
 
@@ -52,6 +55,7 @@ export class LoginComponent {
         this.router.navigate(['/messenger']);
       },
       error: (error) => {
+        this.loading = false;
         console.error('Login failed', error);
         if (error.status === 400) {
           if (error.error.message.includes('Username')) {
@@ -64,6 +68,9 @@ export class LoginComponent {
         } else {
           this.errorMessage = error.error.message || 'An error occurred during registration';
         }
+      },
+      complete: () => {
+        this.loading = false;
       }
     });
 

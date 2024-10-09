@@ -13,6 +13,7 @@ import {FriendRequestHandlerService} from "../../shared/friend-request-handler.s
 export class ReceivedFriendRequestCardComponent {
 
   @Input() request!: FriendRequest;
+  loading: boolean = false;
 
   constructor(private authService: AuthService,
               private friendsRequestService: FriendsRequestService,
@@ -20,11 +21,18 @@ export class ReceivedFriendRequestCardComponent {
   }
 
   acceptRequest() {
+    this.loading = true;
     this.friendsRequestService.acceptFriendRequest(this.request.sender.connectionId).subscribe({
       next: ((response) => {
         this.friendRequestHandlerService.removeRequest(this.request);
       }),
-      error: ((err) => console.log(err)),
+      error: ((err) => {
+        console.log(err);
+        this.loading = false;
+      }),
+      complete: (() => {
+        this.loading = false;
+      })
     });
   }
 
@@ -33,7 +41,13 @@ export class ReceivedFriendRequestCardComponent {
       next: ((response) => {
         this.friendRequestHandlerService.removeRequest(this.request);
       }),
-      error: ((err) => console.log(err)),
+      error: ((err) => {
+        console.log(err)
+        this.loading = false;
+      }),
+      complete: (() => {
+        this.loading = false;
+      })
     });
   }
 }

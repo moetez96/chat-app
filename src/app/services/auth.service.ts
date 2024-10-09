@@ -5,12 +5,14 @@ import {SignupRequest} from '../models/SignupRequest';
 import {LoginRequest} from '../models/LoginRequest';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models/CurrentUser';
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/';
+
+  private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 

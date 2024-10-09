@@ -8,12 +8,15 @@
       </div>
     </ng-container>
   </div>
-  <div class="chat-messages-wrapper" >
+  <div class="chat-messages-wrapper">
 
     <div class="chat-messages-container-empty-message" *ngIf="!selectedFriend">
       <h1>No friend selected</h1>
     </div>
-    <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend">
+
+    <span class="loader" *ngIf="selectedFriend && loadingConversation"></span>
+
+    <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend && !loadingConversation">
       <ng-container *ngFor="let message of chatMessages; let i = index">
 
         <ng-container *ngIf="i === 0 || !DateUtils.isSameDay(chatMessages[i-1]?.time, message.time)">
@@ -75,7 +78,12 @@
       required
       [disabled]="!selectedFriend"
     >
-    <button type="submit" class="send-message" *ngIf="selectedFriend">Send</button>
+    <button type="submit" class="send-message" *ngIf="selectedFriend">
+      <span *ngIf="!loadingSend">
+        Send
+      </span>
+      <span class="send-loader" *ngIf="loadingSend"></span>
+    </button>
   </form>
 
 </div>

@@ -22,6 +22,8 @@ export class ContactsComponent implements OnInit {
   receivedRequests: FriendRequest[] = [];
   sentRequests: FriendRequest[] = [];
   currentUser!: CurrentUser | null;
+  loading: boolean = true;
+  requestLoading: string | null = null;
 
   constructor(
     private authService: AuthService,
@@ -94,11 +96,15 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching data:', error.status);
+      },
+      complete: () => {
+        this.loading = false;
       }
     });
   }
 
   acceptContact(contactId: string) {
+    this.requestLoading = contactId;
     this.friendsRequestService.acceptFriendRequest(contactId).subscribe({
       next: (friendRequest) => {
         if (this.currentUser) {
@@ -108,40 +114,59 @@ export class ContactsComponent implements OnInit {
         }
       },
       error: (error) => {
+        this.requestLoading = null;
         console.error('Error sending request:', error.status);
+      },
+      complete: () => {
+        this.requestLoading = null;
       }
     });
   }
 
   addContact(contactId: string) {
+    this.requestLoading = contactId;
     this.friendsRequestService.sendRequest(contactId).subscribe({
       next: (friendRequest) => {
         this.sentRequests.push(friendRequest);
       },
       error: (error) => {
+        this.requestLoading = null;
         console.error('Error sending request:', error.status);
+      },
+      complete: () => {
+        this.requestLoading = null;
       }
     });
   }
 
   cancelRequest(contactId: string) {
+    this.requestLoading = contactId;
     this.friendsRequestService.cancelFriendRequest(contactId).subscribe({
       next: (response) => {
         this.sentRequests = this.sentRequests.filter((req) => req.receiver.connectionId !== contactId);
       },
       error: (error) => {
+        this.requestLoading = null;
         console.error('Error canceling request:', error.status);
+      },
+      complete: () => {
+        this.requestLoading = null;
       }
     });
   }
 
   declineRequest(contactId: string) {
+    this.requestLoading = contactId;
     this.friendsRequestService.declineFriendRequest(contactId).subscribe({
       next: (response) => {
         this.receivedRequests = this.receivedRequests.filter((req) => req.sender.connectionId !== contactId);
       },
       error: (error) => {
+        this.requestLoading = null;
         console.error('Error canceling request:', error.status);
+      },
+      complete: () => {
+        this.requestLoading = null;
       }
     });
   }
