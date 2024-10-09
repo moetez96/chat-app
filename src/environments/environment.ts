@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://chat-api-image-latest.onrender.com/api/',
-  wsUrl: 'https://chat-api-image-latest.onrender.com/ws'
+  apiUrl: 'http://localhost:8080/api/',
+  wsUrl: 'ws://localhost:8080/ws'
 };
