@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {map, Observable, throwError} from "rxjs";
+import {map, Observable} from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { FriendRequest } from "../models/FriendRequest";
 import {catchError, tap} from "rxjs/operators";

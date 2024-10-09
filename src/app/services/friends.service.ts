@@ -6,7 +6,6 @@ import {AuthService} from "./auth.service";
 import {Friend} from "../models/Friend";
 import {ChatMessage} from "../models/ChatMessage";
 import {ApiResponse} from "../models/ApiResponse";
-import {FriendRequest} from "../models/FriendRequest";
 import {handleError, handleResponse} from "../utils/api-handler";
 import {catchError} from "rxjs/operators";
 import {environment} from "../../environments/environment";

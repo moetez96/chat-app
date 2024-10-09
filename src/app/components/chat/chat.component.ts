@@ -52,6 +52,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedFriend']) {
       this.loadingSend = false;
+      this.message = "";
       const previousFriend = changes['selectedFriend'].previousValue;
       if (previousFriend) {
         this.webSocketService.unsubscribe(`/topic/${previousFriend.convId}`);
@@ -131,6 +132,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
                   if (!this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
                     this.chatMessages.push(messageBody);
                     this.loadingSend = false;
+                    this.message = "";
                   }
                 }
                 break;
@@ -198,7 +200,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
             time: Date.now()
           });
       }
-      this.message = "";
     }
   }
 

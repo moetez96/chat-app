@@ -6,8 +6,10 @@ import { IMessage } from "@stomp/stompjs";
 import { ChatMessage } from './models/ChatMessage';
 import { MessageService } from "./shared/message.service";
 import { environment } from "../environments/environment";
-import { filter } from 'rxjs/operators';
-import {ToastrService} from "ngx-toastr";
+import { filter, switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { interval, Subject, throwError } from "rxjs";
+import { ServerStatusService } from "./services/server-status.service";
+import { ToastrService } from "ngx-toastr";
 
 @Component({
   selector: 'app-root',
@@ -18,15 +20,27 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavbar = true;
   private userId: string | null = null;
 
+  isServerReady = false;
+  private stopPolling$ = new Subject<void>();
+  private loadingToastId: number | null = null;
+
   constructor(
     private router: Router,
     private webSocketService: WebSocketService,
     private authService: AuthService,
     private messageService: MessageService,
+    private serverStatusService: ServerStatusService,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
+    this.startPolling();
+
+    this.loadingToastId = this.toastr.info('Awaiting backend connection please wait', 'Loading', {
+      disableTimeOut: true,
+      closeButton: true
+    }).toastId;
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -46,6 +60,33 @@ export class AppComponent implements OnInit, OnDestroy {
       });
   }
 
+  startPolling() {
+    interval(5000)
+      .pipe(
+        switchMap(() => this.serverStatusService.checkServerStatus()),
+        takeUntil(this.stopPolling$),
+        catchError(error => {
+          this.toastr.error('Failed to connect to the backend.', 'Error');
+          this.stopPolling$.next();
+          return throwError(() => new Error(error));
+        })
+      )
+      .subscribe(isReady => {
+        if (isReady) {
+          this.isServerReady = true;
+          console.log('Server is ready!');
+
+          if (this.loadingToastId !== null) {
+            this.toastr.clear(this.loadingToastId);
+          }
+
+          this.toastr.success('Backend is ready', 'Success');
+
+          this.stopPolling$.next();
+        }
+      });
+  }
+
   private subscribeToWebSocket(userId: string) {
     const token = this.authService.getToken();
     const url = environment.wsUrl;
@@ -59,21 +100,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.webSocketService.disconnect();
+    this.stopPolling$.next();
+    this.stopPolling$.complete();
   }
-  showSuccess() {
-    this.toastr.success('Message sent successfully!', 'Success');
-  }
-
-  showError() {
-    this.toastr.error('Something went wrong!', 'Error');
-  }
-
-  showWarning() {
-    this.toastr.warning('This is a warning!', 'Warning');
-  }
-
-  showInfo() {
-    this.toastr.info('Here is some information.', 'Info');
-  }
-
 }
