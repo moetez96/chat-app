@@ -81,6 +81,7 @@ export class FriendsListHandlerService {
       }
 
       if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
+        this.toastr.info(message.senderUsername + ' accepted your friend request', 'Accepted friend request');
         this.addNewFriend(message.senderId);
       }
 

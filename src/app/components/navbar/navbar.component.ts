@@ -8,6 +8,7 @@ import {SimpleNotif} from "../../models/SimpleNotif";
 import {NotificationType} from "../../models/enums/NotificationType";
 import {FriendsRequestService} from "../../services/friends-request.service";
 import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-navbar',
@@ -20,7 +21,8 @@ export class NavbarComponent implements OnInit {
               private friendsRequestService: FriendsRequestService,
               private webSocketService: WebSocketService,
               private router: Router,
-              private messageService: MessageService) {
+              private messageService: MessageService,
+              private toastr: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -53,6 +55,7 @@ export class NavbarComponent implements OnInit {
           }
 
           if (message.messageType === MessageType.FRIEND_REQUEST) {
+            this.toastr.info(message.senderUsername + ' sent you a friend request', 'New friend request');
             this.messageService.addUnseenRequest(simpleNotif);
           }
 

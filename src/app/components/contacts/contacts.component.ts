@@ -46,6 +46,7 @@ export class ContactsComponent implements OnInit {
             break;
 
           case MessageType.FRIEND_REQUEST_ACCEPTED:
+            this.toastr.info(message.senderUsername + ' accepted your friend request', 'Accepted friend request');
             this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
             this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
             this.allContactsList = this.contactsList;
