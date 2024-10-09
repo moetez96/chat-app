@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { BehaviorSubject, Observable } from 'rxjs';
+import {ToastrService} from "ngx-toastr";
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class WebSocketService {
   private connectionStateSubject = new BehaviorSubject<boolean>(false);
   private subscriptions: Map<string, StompSubscription> = new Map();
 
-  constructor() {
+  constructor(private toastr: ToastrService) {
     this.stompClient = new Client();
   }
 
@@ -38,7 +39,7 @@ export class WebSocketService {
         console.error('WebSocket error:', error);
         this.connectionStateSubject.next(false);
       },
-      reconnectDelay: 1000,
+      reconnectDelay: 5000,
       heartbeatIncoming: 5000,
       heartbeatOutgoing: 5000,
     });
@@ -68,28 +69,30 @@ export class WebSocketService {
     }
   }
 
-  subscribe(topic: string, callback: (message: IMessage) => void) {
-    console.log(this.subscriptions);
-
+  subscribe(topic: string, callback: (message: IMessage) => void, retryCount: number = 0) {
+    const maxRetries = 5;
     if (this.subscriptions.has(topic)) {
       console.warn(`Subscription to topic '${topic}' already exists. Skipping re-subscription.`);
       return;
     }
 
-    this.connectionStateSubject.subscribe((isConnected) => {
-      if (isConnected && this.stompClient && this.stompClient.connected) {
-        const subscription = this.stompClient.subscribe(topic, callback);
-        this.subscriptions.set(topic, subscription);
-        console.log(`Successfully subscribed to topic: ${topic}`);
-      } else {
-        console.error(`STOMP client is not active. Cannot subscribe to topic: ${topic}`);
-        setTimeout(() => {
-          this.subscribe(topic, callback);
-        }, 1000);
-      }
-    });
-  }
+    if (retryCount >= maxRetries) {
+      this.toastr.error('Error connecting to backend', 'Websocket error');
+      console.error(`Failed to subscribe to topic '${topic}' after ${maxRetries} attempts.`);
+      return;
+    }
 
+    if (this.stompClient.connected) {
+      const subscription = this.stompClient.subscribe(topic, callback);
+      this.subscriptions.set(topic, subscription);
+      console.log(`Successfully subscribed to topic: ${topic}`);
+    } else {
+      console.error(`STOMP client is not active. Retrying subscription to topic: ${topic} (Attempt ${retryCount + 1}/${maxRetries})`);
+      setTimeout(() => {
+        this.subscribe(topic, callback, retryCount + 1);
+      }, 1000);
+    }
+  }
 
   unsubscribe(topic: string) {
     const subscription = this.subscriptions.get(topic);

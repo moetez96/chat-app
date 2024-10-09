@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
 import {LoginRequest} from "../../models/LoginRequest";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,9 @@ export class LoginComponent {
   loading: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
-              private authService: AuthService, private router: Router) { }
+              private authService: AuthService,
+              private router: Router,
+              private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -66,7 +69,9 @@ export class LoginComponent {
             this.passwordErrorMessage = 'Wrong password';
           }
         } else {
-          this.errorMessage = error.error.message || 'An error occurred during registration';
+
+          this.toastr.error('Server error has occurred, Try again later!', 'Error');
+          this.errorMessage = error.error.message || 'An error occurred during login';
         }
       },
       complete: () => {

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from "../../services/auth.service";
 import { SignupRequest } from "../../models/SignupRequest";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-register',
@@ -18,7 +19,8 @@ export class RegisterComponent implements OnInit {
   loading: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService,
-              private router: Router) {}
+              private router: Router,
+              private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
@@ -69,6 +71,7 @@ export class RegisterComponent implements OnInit {
             this.emailErrorMessage = 'The email is already in use or invalid';
           }
         } else {
+          this.toastr.error('Server error has occurred, Try again later!', 'Error');
           this.errorMessage = error.error.message || 'An error occurred during registration';
         }
       },

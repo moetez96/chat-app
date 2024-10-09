@@ -157,6 +157,10 @@ button {
   border-color: #27AE60;
 }
 
+.custom-toast {
+  background-color: #27AE60;
+}
+
 @keyframes rotate {
   0%   {transform: rotate(0deg)}
   100%   {transform: rotate(360deg)}

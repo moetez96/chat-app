@@ -8,6 +8,7 @@ import {MessageService} from "../../shared/message.service";
 import {MessageType} from "../../models/enums/MessageType";
 import {AuthService} from "../../services/auth.service";
 import {CurrentUser} from "../../models/CurrentUser";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-contacts',
@@ -30,6 +31,7 @@ export class ContactsComponent implements OnInit {
     private friendsService: FriendsService,
     private friendsRequestService: FriendsRequestService,
     private messageService: MessageService,
+    private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -95,6 +97,8 @@ export class ContactsComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: (error) => {
+        this.loading = false;
+        this.toastr.error('Error fetching data', 'Server error');
         console.error('Error fetching data:', error.status);
       },
       complete: () => {
@@ -115,6 +119,7 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         this.requestLoading = null;
+        this.toastr.error('Error sending request, Try again later', 'Server error');
         console.error('Error sending request:', error.status);
       },
       complete: () => {
@@ -131,6 +136,7 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         this.requestLoading = null;
+        this.toastr.error('Error accepting request, Try again later', 'Server error');
         console.error('Error sending request:', error.status);
       },
       complete: () => {
@@ -147,6 +153,7 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         this.requestLoading = null;
+        this.toastr.error('Error canceling request, Try again later', 'Server error');
         console.error('Error canceling request:', error.status);
       },
       complete: () => {
@@ -163,7 +170,8 @@ export class ContactsComponent implements OnInit {
       },
       error: (error) => {
         this.requestLoading = null;
-        console.error('Error canceling request:', error.status);
+        this.toastr.error('Error declining request, Try again later', 'Server error');
+        console.error('Error declining request:', error.status);
       },
       complete: () => {
         this.requestLoading = null;

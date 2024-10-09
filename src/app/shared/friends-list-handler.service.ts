@@ -7,6 +7,7 @@ import {MessageType} from '../models/enums/MessageType';
 import {MessageDeliveryStatusEnum} from '../models/enums/MessageDeliveryStatusEnum';
 import {MessageService} from './message.service';
 import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
+import {ToastrService} from "ngx-toastr";
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class FriendsListHandlerService {
 
   constructor(
     private friendsService: FriendsService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private toastr: ToastrService
   ) {}
 
   loadFriendsAndUnseenMessages(): Promise<void> {
@@ -52,6 +54,7 @@ export class FriendsListHandlerService {
           });
         },
         error: (error) => {
+          this.toastr.error('Error fetching friends', 'Server error');
           console.error('Error fetching friends:', error);
           reject(error);
         }

@@ -7,6 +7,7 @@ import { ChatMessage } from './models/ChatMessage';
 import { MessageService } from "./shared/message.service";
 import { environment } from "../environments/environment";
 import { filter } from 'rxjs/operators';
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-root',
@@ -21,7 +22,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private webSocketService: WebSocketService,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -58,4 +60,20 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.webSocketService.disconnect();
   }
+  showSuccess() {
+    this.toastr.success('Message sent successfully!', 'Success');
+  }
+
+  showError() {
+    this.toastr.error('Something went wrong!', 'Error');
+  }
+
+  showWarning() {
+    this.toastr.warning('This is a warning!', 'Warning');
+  }
+
+  showInfo() {
+    this.toastr.info('Here is some information.', 'Info');
+  }
+
 }

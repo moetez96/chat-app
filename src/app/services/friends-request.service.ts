@@ -6,6 +6,7 @@ import {catchError, tap} from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import {ApiResponse} from "../models/ApiResponse";
 import {handleError, handleResponse} from "../utils/api-handler";
+import {ToastrService} from "ngx-toastr";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class FriendsRequestService {
 
   private apiUrl = `${environment.apiUrl}request/`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+              private toastr: ToastrService) {}
 
   sendRequest(friendId: string): Observable<FriendRequest> {
     return this.http.post<ApiResponse<FriendRequest>>(`${this.apiUrl}addFriendRequest/${friendId}`, {})
@@ -36,7 +38,10 @@ export class FriendsRequestService {
     return this.http.get<ApiResponse<FriendRequest[]>>(`${this.apiUrl}getReceivedRequests`)
       .pipe(
         map(response =>handleResponse(response)),
-        catchError(error => handleError(error))
+        catchError(error => {
+          this.toastr.error('Error fetching requests', 'Server error');
+          return handleError(error)
+        })
       );
   }
 
