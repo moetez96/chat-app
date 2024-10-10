@@ -8,6 +8,7 @@ import { FriendsListHandlerService } from "../../shared/friends-list-handler.ser
 import { FriendRequest } from "../../models/FriendRequest";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FriendsService } from "../../services/friends.service";
+import {PollingService} from "../../shared/polling.service";
 
 @Component({
   selector: 'app-messenger',
@@ -31,6 +32,8 @@ export class MessengerComponent implements OnInit, OnDestroy {
   expand: boolean = false;
   loading: boolean = true;
 
+  isServerReady: boolean = false;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -39,18 +42,25 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private friendsListHandlerService: FriendsListHandlerService,
     private friendsService: FriendsService,
+    private pollingService: PollingService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadRequests();
-    this.loadFriends();
     this.subscribeToMessages();
     this.subscribeToRequestsList();
     this.checkScreenWidth();
 
     window.addEventListener('resize', this.checkScreenWidth.bind(this));
+
+    this.subscriptions.add(
+      this.pollingService.isServerReady$.subscribe(isReady => {
+        this.isServerReady = isReady;
+        this.loadRequests();
+        this.loadFriends();
+      })
+    );
 
     this.route.paramMap.subscribe(params => {
       this.selectedId = params.get('id');

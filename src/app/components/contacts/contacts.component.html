@@ -7,8 +7,8 @@
   <hr>
 
   <div class="contact-list">
-    <span class="loader" *ngIf="loading"></span>
-    <h3 class="empty-contact-list" *ngIf="!loading && contactsList.length === 0">No contacts found</h3>
+    <span class="loader" *ngIf="loading && !isServerReady"></span>
+    <h3 class="empty-contact-list" *ngIf="!loading && isServerReady && contactsList.length === 0">No contacts found</h3>
     <ng-container *ngFor="let contact of contactsList">
       <div class="contact-card">
         <div class="contact-img" [style.background-color]="contact.avatar ? contact.avatar : '#D6D6D6'"></div>

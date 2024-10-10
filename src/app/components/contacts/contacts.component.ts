@@ -9,6 +9,7 @@ import {MessageType} from "../../models/enums/MessageType";
 import {AuthService} from "../../services/auth.service";
 import {CurrentUser} from "../../models/CurrentUser";
 import {ToastrService} from "ngx-toastr";
+import {PollingService} from "../../shared/polling.service";
 
 @Component({
   selector: 'app-contacts',
@@ -26,18 +27,25 @@ export class ContactsComponent implements OnInit {
   loading: boolean = true;
   requestLoading: string | null = null;
 
+  isServerReady: boolean = false;
+
   constructor(
     private authService: AuthService,
     private friendsService: FriendsService,
     private friendsRequestService: FriendsRequestService,
     private messageService: MessageService,
     private toastr: ToastrService,
+    private pollingService: PollingService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
-    this.fetchContacts();
+    this.pollingService.isServerReady$.subscribe(isReady => {
+      this.isServerReady = isReady;
+      this.fetchContacts();
+    });
+
     this.messageService.message$.subscribe(message => {
       if (message) {
         switch (message.messageType) {

@@ -24,7 +24,6 @@ export class ContactCardComponent implements OnInit{
 
   currentUser: CurrentUser | null = null;
 
-
   constructor(private authService: AuthService, private webSocketService: WebSocketService) {
   }
 

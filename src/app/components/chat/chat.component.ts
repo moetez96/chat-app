@@ -19,6 +19,7 @@ import {Friend} from "../../models/Friend";
 import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
 import {MessageType} from "../../models/enums/MessageType";
 import {DateUtils} from "../../utils/DateUtils";
+import {PollingService} from "../../shared/polling.service";
 
 @Component({
   selector: 'app-chat',
@@ -39,23 +40,29 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   friendUserName: string | null = null;
   loadingSend: boolean = false;
   loadingConversation: boolean = false;
+  isServerReady: boolean = false;
 
-  constructor(private authService: AuthService, private webSocketService: WebSocketService,
+  constructor(private authService: AuthService,
+              private webSocketService: WebSocketService,
+              private pollingService: PollingService,
               private conversationService: ConversationService) { }
 
   async ngOnInit() {
     if (this.selectedFriend) {
       await this.handleSelectedFriend(this.selectedFriend);
     }
+
+    this.pollingService.isServerReady$.subscribe(isReady => {
+      this.isServerReady = isReady;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedFriend']) {
       this.loadingSend = false;
-      this.message = "";
       const previousFriend = changes['selectedFriend'].previousValue;
       if (previousFriend) {
-        this.webSocketService.unsubscribe(`/topic/${previousFriend.convId}`);
+        this.webSocketService.unsubscribeFromConversation();
       }
 
       const newFriend = changes['selectedFriend'].currentValue;
@@ -119,7 +126,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   subscribeToConversation(convId: string, connectionId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.webSocketService.subscribe(`/topic/${convId}`, (message: IMessage) => {
+        this.webSocketService.subscribeToConversation(convId, (message: IMessage) => {
           const messageBody: ChatMessage = JSON.parse(message.body);
 
           if (this.selectedFriend?.convId === convId) {
@@ -132,7 +139,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
                   if (!this.chatMessages.map((chat) => chat.id).includes(messageBody.id)) {
                     this.chatMessages.push(messageBody);
                     this.loadingSend = false;
-                    this.message = "";
                   }
                 }
                 break;
@@ -200,6 +206,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
             time: Date.now()
           });
       }
+      this.message = "";
     }
   }
 
@@ -209,7 +216,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
   ngOnDestroy() {
     if (this.selectedFriend) {
-      this.webSocketService.unsubscribe(`/topic/${this.selectedFriend.convId}`);
+      this.webSocketService.unsubscribeFromConversation();
     }
   }
 

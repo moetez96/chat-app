@@ -1,115 +1,60 @@
-import { Injectable } from '@angular/core';
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { BehaviorSubject, Observable } from 'rxjs';
-import {ToastrService} from "ngx-toastr";
+import { Injectable } from "@angular/core";
+import {WebSocketConnectionService} from "./WebSocketConnectionService";
+import {SubscriptionManager} from "./SubscriptionManager";
+import {environment} from "../../environments/environment";
+import {ChatMessage} from "../models/ChatMessage";
+import {AuthService} from "../services/auth.service";
+import {MessageService} from "../shared/message.service";
+import {IMessage} from "@stomp/stompjs";
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
-  private readonly stompClient: Client;
-  private connectionStateSubject = new BehaviorSubject<boolean>(false);
-  private subscriptions: Map<string, StompSubscription> = new Map();
+  constructor(
+    private connectionService: WebSocketConnectionService,
+    private subscriptionManager: SubscriptionManager,
+    private authService: AuthService,
+    private messageService: MessageService
+  ) {}
 
-  constructor(private toastr: ToastrService) {
-    this.stompClient = new Client();
-  }
-
-  connect(url: string, token: string | null): Observable<boolean> {
-    if (this.stompClient.active) {
-      console.warn('WebSocket connection is already active. Skipping reconnect.');
-      return this.connectionStateSubject.asObservable();
-    }
-
-    this.stompClient.configure({
-      brokerURL: url,
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-     // debug: (str) => console.log('STOMP debug:', str),
-      onConnect: (frame) => {
-        console.log('Connected to STOMP server:', frame);
-        this.connectionStateSubject.next(true);
-      },
-      onStompError: (error) => {
-        console.error('STOMP error:', error);
-        this.connectionStateSubject.next(false);
-      },
-      onWebSocketError: (error) => {
-        console.error('WebSocket error:', error);
-        this.connectionStateSubject.next(false);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 5000,
-      heartbeatOutgoing: 5000,
+  connect(url: string, token: string | null) {
+    this.connectionService.connect(url, token).subscribe((connected) => {
+      if (connected) {
+        this.subscriptionManager.resubscribeToAll();
+      }
     });
-
-    this.stompClient.activate();
-    return this.connectionStateSubject.asObservable();
   }
-
 
   disconnect() {
-    if (this.stompClient && this.stompClient.active) {
-      this.stompClient.deactivate();
-      console.log('Disconnected from STOMP server');
-      this.connectionStateSubject.next(false);
-      this.unsubscribeAll();
-    }
+    this.connectionService.disconnect();
+    this.subscriptionManager.unsubscribeAll();
   }
 
-  publish(destination: string, body: any) {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.publish({
-        destination: destination,
-        body: JSON.stringify(body),
-      });
-    } else {
-      console.error('STOMP client is not connected. Cannot publish message to:', destination);
-    }
+  subscribeToUser(callback: (message: any) => void) {
+    this.subscriptionManager.subscribeToUser(callback);
   }
 
-  subscribe(topic: string, callback: (message: IMessage) => void, retryCount: number = 0) {
-    const maxRetries = 5;
-    if (this.subscriptions.has(topic)) {
-      console.warn(`Subscription to topic '${topic}' already exists. Skipping re-subscription.`);
-      return;
-    }
-
-    if (retryCount >= maxRetries) {
-      this.toastr.error('Error connecting to backend', 'Websocket error');
-      console.error(`Failed to subscribe to topic '${topic}' after ${maxRetries} attempts.`);
-      return;
-    }
-
-    if (this.stompClient.connected) {
-      const subscription = this.stompClient.subscribe(topic, callback);
-      this.subscriptions.set(topic, subscription);
-      console.log(`Successfully subscribed to topic: ${topic}`);
-    } else {
-      console.error(`STOMP client is not active. Retrying subscription to topic: ${topic} (Attempt ${retryCount + 1}/${maxRetries})`);
-      setTimeout(() => {
-        this.subscribe(topic, callback, retryCount + 1);
-      }, 1000);
-    }
+  subscribeToConversation(conversationId: string, callback: (message: any) => void) {
+    this.subscriptionManager.subscribeToConversation(conversationId, callback);
   }
 
-  unsubscribe(topic: string) {
-    const subscription = this.subscriptions.get(topic);
-    if (subscription) {
-      subscription.unsubscribe();
-      this.subscriptions.delete(topic);
-      console.log('Unsubscribed from topic:', topic);
-    } else {
-      console.warn('No active subscription for topic:', topic);
-    }
+  unsubscribeFromConversation() {
+    this.subscriptionManager.unsubscribe("conversation");
   }
 
-  unsubscribeAll() {
-    this.subscriptions.forEach((subscription, topic) => {
-      subscription.unsubscribe();
-      console.log('Unsubscribed from topic:', topic);
+  publish(destination: string, message: any) {
+    this.connectionService.publish(destination, message);
+  }
+
+  subscribeToWebSocket() {
+    const token = this.authService.getToken();
+    const url = environment.wsUrl;
+
+    this.connect(url, token);
+    this.subscribeToUser((message: IMessage) => {
+      const messageBody: ChatMessage = JSON.parse(message.body);
+      this.messageService.setMessage(messageBody);
     });
-    this.subscriptions.clear();
   }
 }

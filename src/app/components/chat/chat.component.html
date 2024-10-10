@@ -14,9 +14,8 @@
       <h1>No friend selected</h1>
     </div>
 
-    <span class="loader" *ngIf="selectedFriend && loadingConversation"></span>
-
-    <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend && !loadingConversation">
+    <span class="loader" *ngIf="selectedFriend && loadingConversation && !isServerReady"></span>
+    <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend && !loadingConversation && isServerReady">
       <ng-container *ngFor="let message of chatMessages; let i = index">
 
         <ng-container *ngIf="i === 0 || !DateUtils.isSameDay(chatMessages[i-1]?.time, message.time)">
