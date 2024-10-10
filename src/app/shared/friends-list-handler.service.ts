@@ -70,6 +70,19 @@ export class FriendsListHandlerService {
     );
   }
 
+  handleConversationUpdate(message: ChatMessage): void {
+    console.log(message);
+    if (message.messageType === MessageType.MESSAGE_DELIVERY_UPDATE) {
+      const updatedFriendsList = this.friendsListSubject.value.map((friend) => {
+        if (friend && friend.lastMessage?.id === message.id) {
+          friend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusUpdates[message.messageDeliveryStatusUpdates.length - 1].messageDeliveryStatusEnum
+        }
+        return friend;
+      });
+      this.friendsListSubject.next(updatedFriendsList);
+    }
+  }
+
   handleIncomingMessage(message: ChatMessage): void {
     const updatedFriendsList = this.friendsListSubject.value.map((friend) => {
       if (message.messageType === MessageType.FRIEND_ONLINE || message.messageType === MessageType.FRIEND_OFFLINE) {

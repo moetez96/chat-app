@@ -14,7 +14,7 @@
       <h1>No friend selected</h1>
     </div>
 
-    <span class="loader" *ngIf="selectedFriend && loadingConversation && !isServerReady"></span>
+    <span class="loader" *ngIf="(selectedFriend && loadingConversation) || !isServerReady"></span>
     <div class="chat-messages-container" #messagesContainer *ngIf="selectedFriend && !loadingConversation && isServerReady">
       <ng-container *ngFor="let message of chatMessages; let i = index">
 

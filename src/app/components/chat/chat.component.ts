@@ -57,7 +57,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  async ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedFriend']) {
       this.loadingSend = false;
       const previousFriend = changes['selectedFriend'].previousValue;
@@ -67,7 +67,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
 
       const newFriend = changes['selectedFriend'].currentValue;
       if (newFriend) {
-        this.handleSelectedFriend(newFriend);
+        await this.handleSelectedFriend(newFriend);
       }
     }
   }
@@ -90,13 +90,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     return new Promise((resolve, reject) => {
       this.conversationService.getConversationMessages(convId).subscribe({
         next: (response: ChatMessage[]) => {
-          console.log('Conversation response:', response);
+          //console.log('Conversation response:', response);
           this.chatMessages = response.filter((message) =>
             (message.senderId == this.currentUser?.id && message.receiverId == connectionId) ||
             (message.senderId == connectionId && message.receiverId == this.currentUser?.id)
           );
           this.seeMessages(this.chatMessages);
-          console.log('Conversation messages:', this.chatMessages);
+          //console.log('Conversation messages:', this.chatMessages);
           resolve();
         },
         error: (error) => {
@@ -115,7 +115,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
       chatMessages.filter((msg) => msg.messageDeliveryStatusEnum !== MessageDeliveryStatusEnum.SEEN && msg.senderId !== this.currentUser?.id))
       .subscribe({
         next: (response: ChatMessage[]) => {
-          console.log(response)
+          //console.log(response)
         },
         error: (error) => {
           console.error('Failed to get set messages to seen', error);
@@ -128,7 +128,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
       try {
         this.webSocketService.subscribeToConversation(convId, (message: IMessage) => {
           const messageBody: ChatMessage = JSON.parse(message.body);
-
+          // console.log(messageBody)
           if (this.selectedFriend?.convId === convId) {
             switch (messageBody.messageType) {
               case MessageType.CHAT: {
@@ -173,7 +173,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
     });
   }
 
-
   resetFriendViewCounter(friend: Friend | null, lastMessage: ChatMessage | undefined) {
     if (friend) {
       friend.unSeen = 0;
@@ -185,7 +184,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked, OnCha
   }
 
   private scrollToBottom(): void {
-    if (this.currentUser) {
+    if (this.currentUser && this.messagesContainerRef && this.messagesEndRef) {
       const messagesWrapper = this.messagesContainerRef.nativeElement;
       const messagesEnd = this.messagesEndRef.nativeElement;
       messagesWrapper.scrollTop = messagesEnd.offsetTop;

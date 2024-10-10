@@ -2,10 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from "@angular/router";
 import { WebSocketService } from "./socket/WebSocketService";
 import { AuthService } from "./services/auth.service";
-import { IMessage } from "@stomp/stompjs";
-import { ChatMessage } from './models/ChatMessage';
 import { MessageService } from "./shared/message.service";
-import { environment } from "../environments/environment";
 import { filter } from 'rxjs/operators';
 import {PollingService} from "./shared/polling.service";
 

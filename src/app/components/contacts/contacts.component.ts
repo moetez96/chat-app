@@ -1,9 +1,9 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Friend} from "../../models/Friend";
 import {FriendsService} from "../../services/friends.service";
 import {FriendsRequestService} from "../../services/friends-request.service";
 import {FriendRequest} from "../../models/FriendRequest";
-import {forkJoin} from "rxjs";
+import {combineLatest, Subscription} from "rxjs";
 import {MessageService} from "../../shared/message.service";
 import {MessageType} from "../../models/enums/MessageType";
 import {AuthService} from "../../services/auth.service";
@@ -16,7 +16,7 @@ import {PollingService} from "../../shared/polling.service";
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
-export class ContactsComponent implements OnInit {
+export class ContactsComponent implements OnInit, OnDestroy {
 
   searchText: string = "";
   contactsList: Friend[] = [];
@@ -28,6 +28,9 @@ export class ContactsComponent implements OnInit {
   requestLoading: string | null = null;
 
   isServerReady: boolean = false;
+
+  private subscriptions: Subscription = new Subscription();
+
 
   constructor(
     private authService: AuthService,
@@ -41,6 +44,7 @@ export class ContactsComponent implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
+
     this.pollingService.isServerReady$.subscribe(isReady => {
       this.isServerReady = isReady;
       this.fetchContacts();
@@ -48,29 +52,33 @@ export class ContactsComponent implements OnInit {
 
     this.messageService.message$.subscribe(message => {
       if (message) {
-        switch (message.messageType) {
-          case MessageType.FRIEND_REQUEST:
-            this.receivedRequests = this.messageService.addFriendRequest(this.receivedRequests, message);
-            break;
-
-          case MessageType.FRIEND_REQUEST_ACCEPTED:
-            this.toastr.info(message.senderUsername + ' accepted your friend request', 'Accepted friend request');
-            this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
-            this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
-            this.allContactsList = this.contactsList;
-            break;
-
-          case MessageType.FRIEND_REQUEST_DECLINED:
-            this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
-            this.sentRequests = this.messageService.removeDeclinedFriendRequest(this.sentRequests, message);
-            break;
-
-          case MessageType.FRIEND_REQUEST_CANCELED:
-            this.receivedRequests = this.messageService.removeCanceledFriendRequest(this.receivedRequests, message);
-            break;
-        }
+        this.handleMessage(message)
       }
     });
+  }
+
+  handleMessage(message: any) {
+    switch (message.messageType) {
+      case MessageType.FRIEND_REQUEST:
+        this.receivedRequests = this.messageService.addFriendRequest(this.receivedRequests, message);
+        break;
+
+      case MessageType.FRIEND_REQUEST_ACCEPTED:
+        this.toastr.info(`${message.senderUsername} accepted your friend request`, 'Accepted friend request');
+        this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
+        this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
+        this.allContactsList = this.contactsList;
+        break;
+
+      case MessageType.FRIEND_REQUEST_DECLINED:
+        this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
+        this.sentRequests = this.messageService.removeDeclinedFriendRequest(this.sentRequests, message);
+        break;
+
+      case MessageType.FRIEND_REQUEST_CANCELED:
+        this.receivedRequests = this.messageService.removeCanceledFriendRequest(this.receivedRequests, message);
+        break;
+    }
   }
 
   searchContacts() {
@@ -85,21 +93,20 @@ export class ContactsComponent implements OnInit {
   }
 
   fetchContacts() {
-    forkJoin({
-      receivedRequests: this.friendsRequestService.getReceivedRequests(),
-      sentRequests: this.friendsRequestService.getSentRequests(),
-      contacts: this.friendsService.getAllContacts(),
-      friends: this.friendsService.getFriends(),
-    }).subscribe({
-      next: ({ receivedRequests,
-               sentRequests,
-               contacts,
-               friends }) => {
-
+    this.loading = true;
+    combineLatest([
+      this.friendsRequestService.getReceivedRequests(),
+      this.friendsRequestService.getSentRequests(),
+      this.friendsService.getAllContacts(),
+      this.friendsService.getFriends(),
+    ]).subscribe({
+      next: ([receivedRequests, sentRequests, contacts, friends]) => {
         this.contactsList = contacts.filter((contact) =>
-          !friends.map((fr) => fr.connectionId).includes(contact.connectionId)
+          !friends.some((fr) => fr.connectionId === contact.connectionId)
         );
+
         this.allContactsList = this.contactsList;
+
         this.receivedRequests = receivedRequests;
         this.sentRequests = sentRequests;
 
@@ -196,4 +203,7 @@ export class ContactsComponent implements OnInit {
     return this.receivedRequests.some(rq => rq.sender.connectionId == contactId);
   }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }

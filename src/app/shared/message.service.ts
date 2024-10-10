@@ -101,10 +101,6 @@ export class MessageService {
     }
   }
 
-  setUnseenMessage(messages: SimpleNotif[]): void {
-    this.unseenMessagesSubject.next(messages);
-  }
-
   addUnseenRequest(request: SimpleNotif): void {
     const unseenRequests = this.unseenRequestsSubject.getValue();
     const isDuplicate = unseenRequests.some(
@@ -117,12 +113,6 @@ export class MessageService {
 
   setUnseenRequest(requests: SimpleNotif[]): void {
     this.unseenRequestsSubject.next(requests);
-  }
-
-  removeUnseenMessage(senderId: string, receiverId: string): void {
-    const updatedMessages = this.unseenMessagesSubject.getValue()
-      .filter(msg => !(msg.senderId === senderId && msg.receiverId === receiverId));
-    this.unseenMessagesSubject.next(updatedMessages);
   }
 
   removeUnseenRequest(senderId: string, receiverId: string): void {

@@ -9,7 +9,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MessengerComponent } from './components/messenger/messenger.component';
 import { ContactCardComponent } from './components/contact-card/contact-card.component';
@@ -27,7 +26,6 @@ import {FriendsListComponent} from "./components/friends-list/friends-list.compo
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    HomeComponent,
     NavbarComponent,
     MessengerComponent,
     ContactCardComponent,

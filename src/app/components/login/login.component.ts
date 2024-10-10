@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
@@ -53,8 +53,7 @@ export class LoginComponent {
     }
 
     this.authService.login(loginRequest).subscribe({
-      next: (response) => {
-        console.log('Login successful', response);
+      next: () => {
         this.router.navigate(['/messenger']);
       },
       error: (error) => {

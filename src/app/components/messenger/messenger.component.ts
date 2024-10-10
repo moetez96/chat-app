@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Friend } from "../../models/Friend";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
@@ -47,7 +47,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.subscribeToMessages();
     this.subscribeToRequestsList();
     this.checkScreenWidth();
@@ -57,8 +57,10 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.pollingService.isServerReady$.subscribe(isReady => {
         this.isServerReady = isReady;
-        this.loadRequests();
-        this.loadFriends();
+        if (isReady) {
+          this.loadRequests();
+          this.loadFriends();
+        }
       })
     );
 
@@ -111,6 +113,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
         if (message) {
           this.friendRequestHandlerService.handleMessage(message);
           this.friendsListHandlerService.handleIncomingMessage(message);
+          //this.friendsListHandlerService.handleConversationUpdate(message);
         }
       })
     );
@@ -136,7 +139,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.friendsListHandlerService.updateFriend(updatedFriend);
   }
 
-  selectTab(tab: string) {
+  async selectTab(tab: string) {
     this.selectedTab = tab;
 
     if (tab === 'requests') {
@@ -146,7 +149,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
 
     if (tab === 'friends') {
       this.messageService.resetUnseenMessages();
-      this.loadFriends();
+      await this.loadFriends();
     }
 
     this.searchText = "";
@@ -173,7 +176,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.requestsList = requests;
   }
 
-  search() {
+  async search() {
 
     if (this.searchText.trim()) {
       if (this.selectedTab === 'requests') {
@@ -187,7 +190,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
       }
     } else {
       this.loadRequests();
-      this.loadFriends();
+      await this.loadFriends();
     }
   }
 

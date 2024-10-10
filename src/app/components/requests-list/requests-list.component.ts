@@ -1,8 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import { MessageService } from "../../shared/message.service";
 import { FriendRequest } from "../../models/FriendRequest";
-import { Subscription } from "rxjs";
-import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
 import {FriendsRequestService} from "../../services/friends-request.service";
 
 @Component({

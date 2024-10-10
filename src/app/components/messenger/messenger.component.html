@@ -34,7 +34,7 @@
     </div>
 
     <div class="contacts-container" *ngIf="expand">
-      <span class="loader" *ngIf="loading && !isServerReady"></span>
+      <span class="loader" *ngIf="loading || !isServerReady"></span>
       <app-friends-list class="contacts-content" *ngIf="selectedTab === 'friends'"
                         [selectedFriend]="selectedFriend"
                         [friendsList]="friendsList"
