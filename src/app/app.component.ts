@@ -24,27 +24,31 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.pollingService.startPolling();
-
     this.pollingService.isServerReady$.subscribe(isReady => {
       this.isServerReady = isReady;
-
-      if (isReady && this.authService.isLoggedIn()) {
-        this.webSocketService.subscribeToWebSocket();
-      }
+        if (!isReady) {
+          this.pollingService.startPolling();
+        } else {
+          if (!this.isOnLoginOrRegisterRoute() && this.authService.isLoggedIn()) {
+            this.webSocketService.subscribeToWebSocket();
+          }
+        }
     });
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.showNavbar = !(event.url === '/login' || event.url === '/register');
+        this.showNavbar = !this.isOnLoginOrRegisterRoute();
 
-        if (this.authService.isLoggedIn() && this.isServerReady) {
+        if (!this.isOnLoginOrRegisterRoute() && this.authService.isLoggedIn()) {
           this.webSocketService.subscribeToWebSocket();
-        } else {
-          this.webSocketService.disconnect();
         }
       });
+  }
+
+  private isOnLoginOrRegisterRoute(): boolean {
+    const currentUrl = this.router.url;
+    return currentUrl === '/login' || currentUrl === '/register';
   }
 
   ngOnDestroy() {

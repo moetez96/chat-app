@@ -1,15 +1,18 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {Friend} from "../../models/Friend";
-import {FriendsService} from "../../services/friends.service";
-import {FriendsRequestService} from "../../services/friends-request.service";
-import {FriendRequest} from "../../models/FriendRequest";
-import {combineLatest, Subscription} from "rxjs";
-import {MessageService} from "../../shared/message.service";
-import {MessageType} from "../../models/enums/MessageType";
-import {AuthService} from "../../services/auth.service";
-import {CurrentUser} from "../../models/CurrentUser";
-import {ToastrService} from "ngx-toastr";
-import {PollingService} from "../../shared/polling.service";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Friend } from "../../models/Friend";
+import { FriendsService } from "../../services/friends.service";
+import { FriendsRequestService } from "../../services/friends-request.service";
+import { FriendRequest } from "../../models/FriendRequest";
+import { Subscription } from "rxjs";
+import { MessageService } from "../../shared/message.service";
+import { AuthService } from "../../services/auth.service";
+import { CurrentUser } from "../../models/CurrentUser";
+import { ToastrService } from "ngx-toastr";
+import { PollingService } from "../../shared/polling.service";
+import { NotificationHandlerService } from "../../shared/notification-handler.service";
+import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
+import { MessageType } from "../../models/enums/MessageType";
+import { ContactsHandlerService } from "../../shared/contacts-handler.service";
 
 @Component({
   selector: 'app-contacts',
@@ -26,181 +29,120 @@ export class ContactsComponent implements OnInit, OnDestroy {
   currentUser!: CurrentUser | null;
   loading: boolean = true;
   requestLoading: string | null = null;
-
   isServerReady: boolean = false;
 
   private subscriptions: Subscription = new Subscription();
-
 
   constructor(
     private authService: AuthService,
     private friendsService: FriendsService,
     private friendsRequestService: FriendsRequestService,
     private messageService: MessageService,
+    private notificationHandlerService: NotificationHandlerService,
     private toastr: ToastrService,
     private pollingService: PollingService,
-    private cdr: ChangeDetectorRef
+    private friendRequestHandlerService: FriendRequestHandlerService,
+    private contactsHandlerService: ContactsHandlerService,
   ) {}
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
 
-    this.pollingService.isServerReady$.subscribe(isReady => {
-      this.isServerReady = isReady;
-      this.fetchContacts();
-    });
+    this.subscriptions.add(
+      this.pollingService.isServerReady$.subscribe(isReady => {
+        this.isServerReady = isReady;
+        if (isReady) {
+          this.contactsHandlerService.fetchContacts();
+          this.loading = false;
+        }
+      })
+    );
 
-    this.messageService.message$.subscribe(message => {
-      if (message) {
-        this.handleMessage(message)
-      }
-    });
-  }
+    this.subscriptions.add(
+      this.friendRequestHandlerService.requestsList$.subscribe(requests => {
+        this.receivedRequests = requests;
+      })
+    );
 
-  handleMessage(message: any) {
-    switch (message.messageType) {
-      case MessageType.FRIEND_REQUEST:
-        this.receivedRequests = this.messageService.addFriendRequest(this.receivedRequests, message);
-        break;
+    this.subscriptions.add(
+      this.friendRequestHandlerService.sentRequests$.subscribe(sentRequests => {
+        this.sentRequests = sentRequests;
+      })
+    );
 
-      case MessageType.FRIEND_REQUEST_ACCEPTED:
-        this.toastr.info(`${message.senderUsername} accepted your friend request`, 'Accepted friend request');
-        this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
-        this.contactsList = this.messageService.removeAcceptedFriend(this.contactsList, message);
+    this.subscriptions.add(
+      this.contactsHandlerService.contactsList$.subscribe(contacts => {
+        this.contactsList = contacts;
         this.allContactsList = this.contactsList;
-        break;
+      })
+    );
 
-      case MessageType.FRIEND_REQUEST_DECLINED:
-        this.messageService.removeUnseenRequest(message.receiverId, message.senderId);
-        this.sentRequests = this.messageService.removeDeclinedFriendRequest(this.sentRequests, message);
-        break;
+    this.subscriptions.add(
+      this.messageService.message$.subscribe(message => {
+        if (message) {
+          this.friendRequestHandlerService.handleNotificationMessage(message);
 
-      case MessageType.FRIEND_REQUEST_CANCELED:
-        this.receivedRequests = this.messageService.removeCanceledFriendRequest(this.receivedRequests, message);
-        break;
-    }
+          if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
+            this.contactsList = this.removeAcceptedFriend(this.contactsList, message);
+            this.allContactsList = this.contactsList;
+          }
+        }
+      })
+    );
   }
 
-  searchContacts() {
-
+  async searchContacts() {
     if (this.searchText.trim()) {
-      this.contactsList = this.allContactsList.filter((request) =>
-        request.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
+      this.contactsList = this.allContactsList.filter(contact =>
+        contact.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
       );
     } else {
-      this.fetchContacts();
+      await this.resetContactsList();
     }
   }
 
-  fetchContacts() {
+  async resetContactsList() {
     this.loading = true;
-    combineLatest([
-      this.friendsRequestService.getReceivedRequests(),
-      this.friendsRequestService.getSentRequests(),
-      this.friendsService.getAllContacts(),
-      this.friendsService.getFriends(),
-    ]).subscribe({
-      next: ([receivedRequests, sentRequests, contacts, friends]) => {
-        this.contactsList = contacts.filter((contact) =>
-          !friends.some((fr) => fr.connectionId === contact.connectionId)
-        );
-
-        this.allContactsList = this.contactsList;
-
-        this.receivedRequests = receivedRequests;
-        this.sentRequests = sentRequests;
-
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.loading = false;
-        this.toastr.error('Error fetching data', 'Server error');
-        console.error('Error fetching data:', error.status);
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    });
+    await this.contactsHandlerService.fetchContacts().finally(() => {
+      this.loading = false;
+    }
+  );
   }
 
-  acceptContact(contactId: string) {
+  async acceptContact(contactId: string) {
     this.requestLoading = contactId;
-    this.friendsRequestService.acceptFriendRequest(contactId).subscribe({
-      next: (friendRequest) => {
-        if (this.currentUser) {
-          this.contactsList = this.contactsList.filter((friend) => friend.connectionId != contactId);
-          this.allContactsList = this.contactsList;
-          this.messageService.removeUnseenRequest(contactId, this.currentUser.id);
-        }
-      },
-      error: (error) => {
-        this.requestLoading = null;
-        this.toastr.error('Error sending request, Try again later', 'Server error');
-        console.error('Error sending request:', error.status);
-      },
-      complete: () => {
-        this.requestLoading = null;
-      }
-    });
+    await this.contactsHandlerService.acceptContact(contactId);
+    this.requestLoading = null;
   }
 
-  addContact(contactId: string) {
+  async addContact(contactId: string) {
     this.requestLoading = contactId;
-    this.friendsRequestService.sendRequest(contactId).subscribe({
-      next: (friendRequest) => {
-        this.sentRequests.push(friendRequest);
-      },
-      error: (error) => {
-        this.requestLoading = null;
-        this.toastr.error('Error accepting request, Try again later', 'Server error');
-        console.error('Error sending request:', error.status);
-      },
-      complete: () => {
-        this.requestLoading = null;
-      }
-    });
+    await this.contactsHandlerService.addContact(contactId);
+    this.requestLoading = null;
   }
 
-  cancelRequest(contactId: string) {
+  async cancelRequest(contactId: string) {
     this.requestLoading = contactId;
-    this.friendsRequestService.cancelFriendRequest(contactId).subscribe({
-      next: (response) => {
-        this.sentRequests = this.sentRequests.filter((req) => req.receiver.connectionId !== contactId);
-      },
-      error: (error) => {
-        this.requestLoading = null;
-        this.toastr.error('Error canceling request, Try again later', 'Server error');
-        console.error('Error canceling request:', error.status);
-      },
-      complete: () => {
-        this.requestLoading = null;
-      }
-    });
+    await this.contactsHandlerService.cancelRequest(contactId);
+    this.requestLoading = null;
   }
 
-  declineRequest(contactId: string) {
+  async declineRequest(contactId: string) {
     this.requestLoading = contactId;
-    this.friendsRequestService.declineFriendRequest(contactId).subscribe({
-      next: (response) => {
-        this.receivedRequests = this.receivedRequests.filter((req) => req.sender.connectionId !== contactId);
-      },
-      error: (error) => {
-        this.requestLoading = null;
-        this.toastr.error('Error declining request, Try again later', 'Server error');
-        console.error('Error declining request:', error.status);
-      },
-      complete: () => {
-        this.requestLoading = null;
-      }
-    });
+    this.contactsHandlerService.declineRequest(contactId);
+    this.requestLoading = null;
   }
 
   hasSentRequest(contactId: string): boolean {
-    return this.sentRequests.some(fq => fq.receiver.connectionId == contactId);
+    return this.sentRequests.some(request => request.receiver.connectionId === contactId);
   }
 
   hasReceivedRequest(contactId: string): boolean {
-    return this.receivedRequests.some(rq => rq.sender.connectionId == contactId);
+    return this.receivedRequests.some(request => request.sender.connectionId === contactId);
+  }
+
+  removeAcceptedFriend(contactsList: Friend[], message: any): Friend[] {
+    return contactsList.filter(friend => friend.connectionId !== message.senderId);
   }
 
   ngOnDestroy() {

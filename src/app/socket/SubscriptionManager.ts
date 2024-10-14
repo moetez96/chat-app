@@ -2,6 +2,8 @@ import { StompSubscription, IMessage } from "@stomp/stompjs";
 import { Injectable } from "@angular/core";
 import {WebSocketConnectionService} from "./WebSocketConnectionService";
 import {AuthService} from "../services/auth.service";
+import {ChatMessage} from "../models/ChatMessage";
+import {MessageService} from "../shared/message.service";
 
 @Injectable({
   providedIn: 'root',
@@ -10,27 +12,35 @@ export class SubscriptionManager {
   private subscriptions: Map<string, StompSubscription> = new Map();
   private currentConversationId: string | null = null;
 
-  constructor(private connectionService: WebSocketConnectionService, private authService: AuthService) {
-    this.connectionService.connectionStateSubject.subscribe((isConnected) => {
-      if (isConnected) {
-        this.resubscribeToAll();
-      }
-    });
+  constructor(private connectionService: WebSocketConnectionService,
+              private authService: AuthService,
+              private messageService: MessageService) {
   }
 
-  subscribeToUser(callback: (message: IMessage) => void) {
+  subscribeToUser() {
     const userId = this.authService.getCurrentUser()?.id;
 
     if (userId) {
       const topic = `/topic/${userId}`;
-      this.subscribe(topic, callback, "user");
+      this.subscribe(topic, (message: IMessage) => {
+        const messageBody: ChatMessage = JSON.parse(message.body);
+        this.messageService.setMessage(messageBody);
+      }, "user");
     }
   }
 
-  subscribeToConversation(conversationId: string, callback: (message: IMessage) => void) {
+  subscribeToConversation(conversationId: string) {
+
+    if (this.subscriptions.has("conversation")) {
+      this.unsubscribe("conversation");
+    }
+
     this.currentConversationId = conversationId;
     const topic = `/topic/${conversationId}`;
-    this.subscribe(topic, callback, "conversation");
+    this.subscribe(topic, (message: IMessage) => {
+      const messageBody: ChatMessage = JSON.parse(message.body);
+      this.messageService.setMessage(messageBody);
+    }, "conversation");
   }
 
   private subscribe(topic: string, callback: (message: IMessage) => void, subscriptionKey: string, retryCount: number = 0) {
@@ -69,21 +79,17 @@ export class SubscriptionManager {
     if (subscription) {
       subscription.unsubscribe();
       this.subscriptions.delete(subscriptionKey);
+      this.currentConversationId = null;
       console.log(`Unsubscribed from '${subscriptionKey}'`);
     }
   }
 
-  resubscribeToAll() {
-    if (this.subscriptions.has("user")) {
-      this.subscribeToUser((message: IMessage) => {
-        console.log("User message received:", message);
-      });
-    }
+  subscribeToAll() {
+    this.subscriptions.clear();
+    this.subscribeToUser();
 
     if (this.currentConversationId) {
-      this.subscribeToConversation(this.currentConversationId, (message: IMessage) => {
-        console.log("Conversation message received:", message);
-      });
+      this.subscribeToConversation(this.currentConversationId);
     }
   }
 
@@ -94,4 +100,5 @@ export class SubscriptionManager {
     this.subscriptions.clear();
     this.currentConversationId = null;
   }
+
 }

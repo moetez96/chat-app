@@ -36,13 +36,13 @@
     <div class="contacts-container" *ngIf="expand">
       <span class="loader" *ngIf="loading || !isServerReady"></span>
       <app-friends-list class="contacts-content" *ngIf="selectedTab === 'friends'"
-                        [selectedFriend]="selectedFriend"
+                        [selectedId]="selectedId"
                         [friendsList]="friendsList"
                         (handleSelectedFriend)="handleSelectedFriend($event)"></app-friends-list>
+
       <app-requests-list class="requests-tab-container" *ngIf="selectedTab === 'requests'"
                          [requestsList]="requestsList"
                          (updateRequests)="handleUpdateAwaitingRequest($event)"></app-requests-list>
-
     </div>
     <div class="contact-expand">
       <div class="contact-expand-button" (click)="changeExpand()">
@@ -56,5 +56,5 @@
     </div>
   </div>
 
-  <app-chat class="chat-wrapper" [selectedFriend]="selectedFriend" (friendChanged)="friendSeenCounterUpdate($event)"></app-chat>
+  <app-chat class="chat-wrapper" [selectedId]="selectedId"></app-chat>
 </div>

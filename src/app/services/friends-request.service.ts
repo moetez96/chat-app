@@ -89,7 +89,7 @@ export class FriendsRequestService {
   seeFriendsRequests(): Observable<any> {
     return this.http.put<ApiResponse<any>>(`${this.apiUrl}seeFriendsRequests`, {})
       .pipe(
-        tap(response => console.log('API response:', response)),
+        tap(response =>{/*console.log('API response:', response)*/}),
         map(response => handleResponse(response)),
         catchError(error => handleError(error))
       );

@@ -37,19 +37,23 @@ export class PollingService {
       .subscribe(isReady => {
         if (isReady) {
           this.isServerReady$.next(true);
-
           if (this.loadingToastId !== null) {
             this.toastr.clear(this.loadingToastId);
           }
-
           this.toastr.success('Backend is ready', 'Success');
-
           this.stopPolling$.next();
         }
       });
   }
 
+  setServerState(serverState: boolean) {
+    this.isServerReady$.next(serverState);
+  }
+
   stopPolling() {
+    if (this.loadingToastId !== null) {
+      this.toastr.clear(this.loadingToastId);
+    }
     this.stopPolling$.next();
     this.stopPolling$.complete();
   }

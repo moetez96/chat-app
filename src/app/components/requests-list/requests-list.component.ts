@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Si
 import { MessageService } from "../../shared/message.service";
 import { FriendRequest } from "../../models/FriendRequest";
 import {FriendsRequestService} from "../../services/friends-request.service";
+import {NotificationHandlerService} from "../../shared/notification-handler.service";
 
 @Component({
   selector: 'app-requests-list',
@@ -14,7 +15,7 @@ export class RequestsListComponent implements OnInit, OnChanges {
   @Output() updateRequests = new EventEmitter<FriendRequest[]>();
 
   constructor(private friendsRequestService: FriendsRequestService,
-              private messageService: MessageService) {
+              private notificationHandlerService: NotificationHandlerService) {
 
   }
 
@@ -24,10 +25,10 @@ export class RequestsListComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['requestsList']) {
       this.friendsRequestService.seeFriendsRequests().subscribe({
-        next:((res) => console.log(res)),
+        next:((res) => {}),
         error:((error) => console.log(error))
       });
-      this.messageService.resetUnseenRequest();
+      this.notificationHandlerService.resetUnseenRequest();
     }
   }
 }

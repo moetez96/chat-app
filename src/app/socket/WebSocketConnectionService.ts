@@ -1,22 +1,20 @@
 import { Client } from "@stomp/stompjs";
-import { BehaviorSubject, Observable } from "rxjs";
 import { Injectable } from "@angular/core";
+import {PollingService} from "../shared/polling.service";
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketConnectionService {
   private readonly stompClient: Client;
-  connectionStateSubject = new BehaviorSubject<boolean>(false);
 
-  constructor() {
+  constructor(private pollingService: PollingService) {
     this.stompClient = new Client();
   }
 
-  connect(url: string, token: string | null): Observable<boolean> {
+  connect(url: string, token: string | null) {
     if (this.stompClient.active) {
       console.warn('WebSocket connection is already active. Skipping reconnect.');
-      return this.connectionStateSubject.asObservable();
     }
 
     this.stompClient.configure({
@@ -26,19 +24,18 @@ export class WebSocketConnectionService {
       },
       onConnect: (frame) => {
         console.log('Connected to STOMP server:', frame);
-        this.connectionStateSubject.next(true);
       },
       onStompError: (error) => {
         console.error('STOMP error:', error);
-        this.connectionStateSubject.next(false);
+        this.pollingService.setServerState(false);
       },
       onWebSocketError: (error) => {
         console.error('WebSocket error:', error);
-        this.connectionStateSubject.next(false);
+        this.pollingService.setServerState(false);
       },
       onDisconnect: () => {
         console.log('Disconnected from STOMP server.');
-        this.connectionStateSubject.next(false);
+        this.pollingService.setServerState(false);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
@@ -46,13 +43,12 @@ export class WebSocketConnectionService {
     });
 
     this.stompClient.activate();
-    return this.connectionStateSubject.asObservable();
   }
 
   disconnect() {
     if (this.stompClient?.active) {
       this.stompClient.deactivate();
-      this.connectionStateSubject.next(false);
+      this.pollingService.setServerState(false);
       console.log('Disconnected from WebSocket');
     }
   }

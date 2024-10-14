@@ -6,7 +6,6 @@ import {ChatMessage} from '../models/ChatMessage';
 import {MessageType} from '../models/enums/MessageType';
 import {MessageDeliveryStatusEnum} from '../models/enums/MessageDeliveryStatusEnum';
 import {MessageService} from './message.service';
-import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 import {ToastrService} from "ngx-toastr";
 
 @Injectable({
@@ -15,6 +14,7 @@ import {ToastrService} from "ngx-toastr";
 export class FriendsListHandlerService {
 
   private friendsListSubject = new BehaviorSubject<Friend[]>([]);
+
   friendsList$ = this.friendsListSubject.asObservable();
 
   constructor(
@@ -70,27 +70,14 @@ export class FriendsListHandlerService {
     );
   }
 
-  handleConversationUpdate(message: ChatMessage): void {
-    console.log(message);
-    if (message.messageType === MessageType.MESSAGE_DELIVERY_UPDATE) {
-      const updatedFriendsList = this.friendsListSubject.value.map((friend) => {
-        if (friend && friend.lastMessage?.id === message.id) {
-          friend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusUpdates[message.messageDeliveryStatusUpdates.length - 1].messageDeliveryStatusEnum
-        }
-        return friend;
-      });
-      this.friendsListSubject.next(updatedFriendsList);
-    }
-  }
-
   handleIncomingMessage(message: ChatMessage): void {
     const updatedFriendsList = this.friendsListSubject.value.map((friend) => {
       if (message.messageType === MessageType.FRIEND_ONLINE || message.messageType === MessageType.FRIEND_OFFLINE) {
-        this.messageService.updateFriendOnlineStatus(friend, message);
+        this.updateFriendOnlineStatus(friend, message);
       }
 
       if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED || message.messageType === MessageType.UNSEEN) {
-        this.messageService.updateFriendUnseenCount(friend, message);
+        this.updateFriendUnseenCount(friend, message);
       }
 
       if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
@@ -99,7 +86,7 @@ export class FriendsListHandlerService {
       }
 
       if (message.content) {
-        this.messageService.updateFriendLastMessage(friend, message);
+        this.updateFriendLastMessage(friend, message);
       }
 
       return friend;
@@ -138,16 +125,24 @@ export class FriendsListHandlerService {
     });
   }
 
-  updateFriend(updatedFriend: Friend): void {
-    const friendsList = this.friendsListSubject.value;
-    const index = friendsList.findIndex(friend => friend.connectionId === updatedFriend.connectionId);
+  updateFriendOnlineStatus(friend: Friend, message: ChatMessage) {
+    if (message.userConnection && message.userConnection.connectionId === friend.connectionId) {
 
-    if (index !== -1) {
-      friendsList[index] = updatedFriend;
-      this.friendsListSubject.next(this.removeDuplicates(friendsList));
+      friend.isOnline = message.messageType === MessageType.FRIEND_ONLINE;
     }
   }
 
+  updateFriendUnseenCount(friend: Friend, message: ChatMessage) {
+    if (message.senderId && message.senderId === friend.connectionId) {
+      friend.unSeen++;
+    }
+  }
+
+  updateFriendLastMessage(friend: Friend, message: ChatMessage) {
+    if (message.content && (message.senderId === friend.connectionId || message.receiverId === friend.connectionId)) {
+      friend.lastMessage = message;
+    }
+  }
 
   private removeDuplicates(friends: Friend[]): Friend[] {
     return friends.filter((friend, index, self) =>

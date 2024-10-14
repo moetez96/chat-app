@@ -85,7 +85,7 @@ export class AuthService {
 
     if (expirationDate) {
       const timeRemaining = expirationDate.getTime() - new Date().getTime();
-      console.log(`Token will expire in ${timeRemaining / 1000} seconds.`);
+      //console.log(`Token will expire in ${timeRemaining / 1000} seconds.`);
     } else {
       console.log('Token expiration date not found.');
     }

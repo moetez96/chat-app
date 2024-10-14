@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Friend } from "../../models/Friend";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
-import { Subscription } from "rxjs";
+import {debounceTime, Subscription} from "rxjs";
 import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
 import { FriendsListHandlerService } from "../../shared/friends-list-handler.service";
 import { FriendRequest } from "../../models/FriendRequest";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FriendsService } from "../../services/friends.service";
 import {PollingService} from "../../shared/polling.service";
+import {NotificationHandlerService} from "../../shared/notification-handler.service";
 
 @Component({
   selector: 'app-messenger',
@@ -23,7 +24,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
   allRequestsList: FriendRequest[] = [];
   allFriendsList: Friend[] = [];
 
-  selectedFriend: Friend | null = null;
   selectedTab: string = 'friends';
   awaitingUnseenMessagesCount: number = 0;
   searchText: string = "";
@@ -40,6 +40,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private webSocketService: WebSocketService,
     private friendRequestHandlerService: FriendRequestHandlerService,
     private messageService: MessageService,
+    private notificationHandlerService: NotificationHandlerService,
     private friendsListHandlerService: FriendsListHandlerService,
     private friendsService: FriendsService,
     private pollingService: PollingService,
@@ -48,10 +49,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.subscribeToMessages();
-    this.subscribeToRequestsList();
     this.checkScreenWidth();
-
     window.addEventListener('resize', this.checkScreenWidth.bind(this));
 
     this.subscriptions.add(
@@ -60,29 +58,23 @@ export class MessengerComponent implements OnInit, OnDestroy {
         if (isReady) {
           this.loadRequests();
           this.loadFriends();
+          this.subscribeToMessages();
+          this.subscribeToFriendsList();
+          this.subscribeToRequestsList();
+
+          this.route.paramMap.subscribe(params => {
+            this.selectedId = params.get('id');
+
+            if (!this.selectedId) {
+              if(window.innerWidth <= 768) {
+                this.expand = true;
+              }
+            }
+          });
         }
       })
     );
 
-    this.route.paramMap.subscribe(params => {
-      this.selectedId = params.get('id');
-      if (this.selectedId) {
-        this.friendsService.getFriendById(this.selectedId).subscribe({
-          next: ((friend) => {
-            this.selectedFriend = friend;
-          }),
-
-          error: ((error) => {
-            console.log(error);
-          })
-        })
-      } else {
-        if(window.innerWidth <= 768) {
-          this.expand = true;
-        }
-        console.log("No ID provided, default view");
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -109,20 +101,29 @@ export class MessengerComponent implements OnInit, OnDestroy {
 
   subscribeToMessages(): void {
     this.subscriptions.add(
-      this.messageService.message$.subscribe(message => {
+      this.messageService.message$.pipe(debounceTime(300)).subscribe(message => {
         if (message) {
           this.friendRequestHandlerService.handleMessage(message);
           this.friendsListHandlerService.handleIncomingMessage(message);
-          //this.friendsListHandlerService.handleConversationUpdate(message);
         }
       })
     );
+  }
 
-    this.friendsListHandlerService.friendsList$.subscribe(friends => {
-      this.friendsList = this.friendsListHandlerService.sortFriends(friends);
-      this.allFriendsList = this.friendsList;
-      this.awaitingUnseenMessagesCount = friends.filter((friend) => friend.unSeen > 0).length;
-    });
+  subscribeToFriendsList(): void {
+    this.subscriptions.add(
+      this.friendsListHandlerService.friendsList$.subscribe(friends => {
+        if (this.selectedId) {
+          const friend = friends.find(friend => friend.connectionId === this.selectedId);
+          if (friend) {
+            friend.unSeen = 0;
+          }
+        }
+        this.friendsList = this.friendsListHandlerService.sortFriends(friends);
+        this.allFriendsList = this.friendsList;
+        this.awaitingUnseenMessagesCount = friends.filter((friend) => friend.unSeen > 0).length;
+      })
+    );
   }
 
   subscribeToRequestsList(): void {
@@ -134,21 +135,16 @@ export class MessengerComponent implements OnInit, OnDestroy {
     );
   }
 
-  friendSeenCounterUpdate(updatedFriend: Friend) {
-    this.selectedFriend = updatedFriend;
-    this.friendsListHandlerService.updateFriend(updatedFriend);
-  }
-
   async selectTab(tab: string) {
     this.selectedTab = tab;
 
     if (tab === 'requests') {
-      this.messageService.resetUnseenRequest();
+      this.notificationHandlerService.resetUnseenRequest();
       this.loadRequests();
     }
 
     if (tab === 'friends') {
-      this.messageService.resetUnseenMessages();
+      this.notificationHandlerService.resetUnseenMessages();
       await this.loadFriends();
     }
 
@@ -156,11 +152,11 @@ export class MessengerComponent implements OnInit, OnDestroy {
   }
 
   get unseenRequestsCount(): number {
-    return this.messageService.getUnseenRequests().length;
+    return this.notificationHandlerService.getUnseenRequests().length;
   }
 
   get unseenMessagesCount(): number {
-    return this.messageService.getUnseenMessages().length;
+    return this.notificationHandlerService.getUnseenMessages().length;
   }
 
   handleSelectedFriend(selectedFriend: Friend): void {
@@ -168,6 +164,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
       if (window.innerWidth < 768) {
         this.expand = false;
       }
+
       this.router.navigate(['/messenger', selectedFriend.connectionId]);
     }
   }

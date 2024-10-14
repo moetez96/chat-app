@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {SignupRequest} from "../models/SignupRequest";
+import {HttpClient} from "@angular/common/http";
 import {map, Observable} from "rxjs";
-import {AuthService} from "./auth.service";
 import {Friend} from "../models/Friend";
 import {ChatMessage} from "../models/ChatMessage";
 import {ApiResponse} from "../models/ApiResponse";

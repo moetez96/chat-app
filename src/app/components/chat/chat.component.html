@@ -3,8 +3,8 @@
     <ng-container *ngIf="selectedFriend">
       <div class="chat-header-img" [style.background-color]="selectedFriend.avatar ? selectedFriend.avatar : '#D6D6D6'"></div>
       <div class="chat-header-desc">
-        <h3 class="chat-header-name">{{friendUserName}}</h3>
-        <p class="chat-header-status" [style.color]="isOnline ? '#27AE60' : 'gray'">{{isOnline ? 'Online' : 'Offline'}}</p>
+        <h3 class="chat-header-name">{{selectedFriend.connectionUsername}}</h3>
+        <p class="chat-header-status" [style.color]="selectedFriend.isOnline ? '#27AE60' : 'gray'">{{selectedFriend.isOnline ? 'Online' : 'Offline'}}</p>
       </div>
     </ng-container>
   </div>

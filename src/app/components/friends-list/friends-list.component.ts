@@ -8,7 +8,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { Friend } from '../../models/Friend';
-import { MessageService } from "../../shared/message.service";
+import {NotificationHandlerService} from "../../shared/notification-handler.service";
 
 @Component({
   selector: 'app-friends-list',
@@ -17,25 +17,39 @@ import { MessageService } from "../../shared/message.service";
 })
 export class FriendsListComponent implements OnInit, OnChanges {
 
-  @Input() selectedFriend: Friend | null = null;
   @Input() friendsList: Friend[] = [];
-
+  @Input() selectedId!: string | null;
   @Output() handleSelectedFriend = new EventEmitter<Friend>();
+  convId: string | null = null;
 
-  constructor(private messageService: MessageService) {}
+  constructor(private notificationHandlerService: NotificationHandlerService) {}
 
   ngOnInit(): void {
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    let selectedIdChanged = changes['selectedId'] && changes['selectedId'].currentValue !== null;
+
     if (changes['friendsList']) {
-      this.messageService.resetUnseenMessages();
+      this.notificationHandlerService.resetUnseenMessages();
+    }
+
+    if (changes['friendsList'] || selectedIdChanged) {
+      if (this.selectedId && this.friendsList.length > 0) {
+        const friend = this.friendsList.find(friend => friend.connectionId === this.selectedId);
+        if (friend) {
+          this.convId = friend.convId;
+        } else {
+          this.convId = null;
+        }
+      } else {
+        this.convId = null;
+      }
     }
   }
 
   selectConversation(friend: Friend): void {
-    this.selectedFriend = friend;
+    this.convId = friend.convId;
     this.handleSelectedFriend.emit(friend);
   }
 }
