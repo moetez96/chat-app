@@ -186,11 +186,8 @@ export class FriendsListHandlerService {
 
       let friendsList = this.friendsListSubject.getValue();
       const foundFriend = friendsList.find(friend => friend?.lastMessage?.id === lastMessage?.id);
-      console.log(foundFriend);
       if (foundFriend) {
         foundFriend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusEnum;
-        console.log(foundFriend);
-        console.log(friendsList);
         this.friendsListSubject.next([...friendsList]);
       }
     }

@@ -61,7 +61,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   isMessengerUrl(): boolean {
-    return this.router.url === '/messenger';
+    return this.router.url.includes('/messenger');
   }
 
   isContactsUrl(): boolean {
