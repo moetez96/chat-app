@@ -18,6 +18,10 @@ export class PollingService {
     private toastr: ToastrService
   ) {}
 
+  isServerReady(): boolean {
+    return this.isServerReady$.getValue();
+  }
+
   startPolling() {
     this.loadingToastId = this.toastr.info('Awaiting backend connection, please wait', 'Loading', {
       disableTimeOut: true,

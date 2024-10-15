@@ -41,10 +41,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   currentUser: CurrentUser | null = null;
   message: string = "";
 
-  loadingSend: boolean = false;
-  loadingConversation: boolean = false;
-  isServerReady: boolean = false;
-
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -59,12 +55,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
-
-    this.subscription.add(
-      this.pollingService.isServerReady$.subscribe(isReady => {
-        this.isServerReady = isReady;
-      })
-    );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -120,7 +110,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
   sendMessage() {
     if (this.message && this.selectedFriend?.convId) {
-      this.loadingSend = true;
+      this.conversationHandlerService.setLoadingSend(true);
 
       this.webSocketService.publish(this.selectedFriend.convId, {
         messageType: MessageType.CHAT,
@@ -131,7 +121,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
       });
 
       this.message = "";
-      this.loadingSend = false;
     }
   }
 
@@ -145,6 +134,18 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  get getLoadingSend(): boolean {
+    return this.conversationHandlerService.getLoadingSend();
+  }
+
+  get getLoadingConversation(): boolean {
+    return this.conversationHandlerService.getLoadingConversation();
+  }
+
+  get isServerReady(): boolean {
+    return this.pollingService.isServerReady();
   }
 
   ngOnDestroy() {

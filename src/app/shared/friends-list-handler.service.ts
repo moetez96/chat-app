@@ -85,6 +85,10 @@ export class FriendsListHandlerService {
         this.addNewFriend(message.senderId);
       }
 
+      if (message.messageType === MessageType.MESSAGE_DELIVERY_UPDATE) {
+        this.updateMessageStatus(message);
+      }
+
       if (message.content) {
         this.updateFriendLastMessage(friend, message);
       }
@@ -149,4 +153,35 @@ export class FriendsListHandlerService {
       index === self.findIndex(f => f.connectionId === friend.connectionId)
     );
   }
+
+  private updateMessageStatus(message: ChatMessage) {
+    if (
+      message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED ||
+      message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.SEEN
+    ) {
+      const messageDeliveryStatusUpdates = message.messageDeliveryStatusUpdates;
+
+      let lastMessage;
+
+      if (messageDeliveryStatusUpdates.length === 0) {
+        return;
+      }
+
+      lastMessage = messageDeliveryStatusUpdates[messageDeliveryStatusUpdates.length - 1];
+
+      if (!lastMessage) {
+        return;
+      }
+
+      const friendsList = this.friendsListSubject.getValue();
+
+      const friend = friendsList.find(friend => friend.lastMessage.id === lastMessage.id);
+
+      if (friend && friend.lastMessage) {
+        friend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusEnum;
+        this.friendsListSubject.next([...friendsList]);
+      }
+    }
+  }
+
 }

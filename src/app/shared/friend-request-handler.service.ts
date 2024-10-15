@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { FriendsRequestService } from '../services/friends-request.service';
-import { MessageService } from './message.service';
 import { MessageType } from '../models/enums/MessageType';
 import {BehaviorSubject, tap} from 'rxjs';
 import {FriendRequest} from "../models/FriendRequest";
@@ -111,6 +110,7 @@ export class FriendRequestHandlerService {
         this.removeCanceledFriendRequest(receivedRequests, message);
         break;
     }
+
   }
 
   addFriendRequest(receivedRequests: FriendRequest[], message: any) {

@@ -11,7 +11,6 @@ import { ToastrService } from "ngx-toastr";
 import { PollingService } from "../../shared/polling.service";
 import { NotificationHandlerService } from "../../shared/notification-handler.service";
 import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
-import { MessageType } from "../../models/enums/MessageType";
 import { ContactsHandlerService } from "../../shared/contacts-handler.service";
 
 @Component({
@@ -27,8 +26,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
   receivedRequests: FriendRequest[] = [];
   sentRequests: FriendRequest[] = [];
   currentUser!: CurrentUser | null;
-  loading: boolean = true;
-  requestLoading: string | null = null;
+
   isServerReady: boolean = false;
 
   private subscriptions: Subscription = new Subscription();
@@ -53,7 +51,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
         this.isServerReady = isReady;
         if (isReady) {
           this.contactsHandlerService.fetchContacts();
-          this.loading = false;
         }
       })
     );
@@ -76,61 +73,36 @@ export class ContactsComponent implements OnInit, OnDestroy {
         this.allContactsList = this.contactsList;
       })
     );
-
-    this.subscriptions.add(
-      this.messageService.message$.subscribe(message => {
-        if (message) {
-          this.friendRequestHandlerService.handleNotificationMessage(message);
-
-          if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
-            this.contactsList = this.removeAcceptedFriend(this.contactsList, message);
-            this.allContactsList = this.contactsList;
-          }
-        }
-      })
-    );
   }
 
-  async searchContacts() {
+  searchContacts() {
     if (this.searchText.trim()) {
       this.contactsList = this.allContactsList.filter(contact =>
         contact.connectionUsername.toLowerCase().includes(this.searchText.toLowerCase())
       );
     } else {
-      await this.resetContactsList();
+      this.resetContactsList();
     }
   }
 
-  async resetContactsList() {
-    this.loading = true;
-    await this.contactsHandlerService.fetchContacts().finally(() => {
-      this.loading = false;
-    }
-  );
+  resetContactsList() {
+    this.contactsHandlerService.fetchContacts();
   }
 
-  async acceptContact(contactId: string) {
-    this.requestLoading = contactId;
-    await this.contactsHandlerService.acceptContact(contactId);
-    this.requestLoading = null;
+  acceptContact(contactId: string) {
+    this.contactsHandlerService.acceptContact(contactId);
   }
 
-  async addContact(contactId: string) {
-    this.requestLoading = contactId;
-    await this.contactsHandlerService.addContact(contactId);
-    this.requestLoading = null;
+  addContact(contactId: string) {
+    this.contactsHandlerService.addContact(contactId);
   }
 
-  async cancelRequest(contactId: string) {
-    this.requestLoading = contactId;
-    await this.contactsHandlerService.cancelRequest(contactId);
-    this.requestLoading = null;
+  cancelRequest(contactId: string) {
+    this.contactsHandlerService.cancelRequest(contactId);
   }
 
-  async declineRequest(contactId: string) {
-    this.requestLoading = contactId;
+  declineRequest(contactId: string) {
     this.contactsHandlerService.declineRequest(contactId);
-    this.requestLoading = null;
   }
 
   hasSentRequest(contactId: string): boolean {
@@ -141,8 +113,12 @@ export class ContactsComponent implements OnInit, OnDestroy {
     return this.receivedRequests.some(request => request.sender.connectionId === contactId);
   }
 
-  removeAcceptedFriend(contactsList: Friend[], message: any): Friend[] {
-    return contactsList.filter(friend => friend.connectionId !== message.senderId);
+  get getLoadingContacts() {
+    return this.contactsHandlerService.getLoadingContacts();
+  }
+
+  get getRequestLoading() {
+    return this.contactsHandlerService.getRequestLoading();
   }
 
   ngOnDestroy() {

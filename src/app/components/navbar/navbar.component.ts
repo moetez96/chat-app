@@ -6,8 +6,7 @@ import { MessageService } from "../../shared/message.service";
 import { NotificationType } from "../../models/enums/NotificationType";
 import { FriendsRequestService } from "../../services/friends-request.service";
 import { NotificationHandlerService } from "../../shared/notification-handler.service";
-import {debounceTime, Subscription} from 'rxjs';
-
+import { Subscription} from 'rxjs';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -44,13 +43,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       this.subscriptions.add(requestsSubscription);
 
-      const messageSubscription = this.messageService.message$.pipe(debounceTime(300)).subscribe(message => {
-        if (message) {
-          this.notificationHandlerService.handleMessageNotifications(message);
-        }
-      });
-
-      this.subscriptions.add(messageSubscription);
     }
   }
 

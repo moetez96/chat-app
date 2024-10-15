@@ -13,6 +13,8 @@ import {Friend} from "../models/Friend";
 })
 export class ConversationHandlerService {
 
+  private loadingSendSubject = new BehaviorSubject<boolean>(false);
+  private loadingConversationSubject = new BehaviorSubject<boolean>(false);
   private chatMessageSubject = new BehaviorSubject<ChatMessage[]>([]);
   chatMessages$ = this.chatMessageSubject.asObservable();
 
@@ -20,6 +22,22 @@ export class ConversationHandlerService {
 
   constructor(private authService: AuthService, private conversationService: ConversationService) {
 
+  }
+
+  setLoadingSend(state: boolean) {
+    this.loadingSendSubject.next(state);
+  }
+
+  getLoadingSend(): boolean {
+    return this.loadingSendSubject.getValue();
+  }
+
+  setLoadingConversation(state: boolean) {
+    this.loadingConversationSubject.next(state);
+  }
+
+  getLoadingConversation() {
+    return this.loadingConversationSubject.getValue();
   }
 
   handleIncomingMessage(message: ChatMessage, connectionId: string) {
@@ -33,7 +51,7 @@ export class ConversationHandlerService {
 
   loadConversationMessages(convId: string, connectionId: string) {
     this.currentUser = this.authService.getCurrentUser();
-    //this.loadingConversation = true;
+    this.setLoadingConversation(true);
     this.conversationService.getConversationMessages(convId).subscribe({
       next: (response: ChatMessage[]) => {
         let chatMessages = response.filter(message =>
@@ -42,12 +60,14 @@ export class ConversationHandlerService {
         );
 
         this.markMessagesAsSeen(chatMessages);
-
-        this.chatMessageSubject.next(chatMessages)
+        this.chatMessageSubject.next(chatMessages);
+        },
+      error: (error) => {
+        console.error('Failed to get conversation messages', error)
+        this.setLoadingConversation(false);
       },
-      error: (error) => console.error('Failed to get conversation messages', error),
       complete: () => {
-        //this.loadingConversation = false;
+        this.setLoadingConversation(false);
       }
     });
   }
@@ -77,6 +97,7 @@ export class ConversationHandlerService {
       }
 
       this.chatMessageSubject.next(newChatMessages);
+      this.setLoadingSend(false);
     }
   }
 
@@ -105,13 +126,4 @@ export class ConversationHandlerService {
     return selectedFriend;
   }
 
-
-  /*
-      const lastMessage = this.chatMessages[this.chatMessages.length - 1];
-
-      if (this.selectedFriend) {
-        this.selectedFriend.lastMessage = lastMessage;
-        this.friendChanged.emit(this.selectedFriend);
-      }
-      */
 }

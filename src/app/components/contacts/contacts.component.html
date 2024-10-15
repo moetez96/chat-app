@@ -7,9 +7,9 @@
   <hr>
 
   <div class="contact-list">
-    <span class="loader" *ngIf="loading || !isServerReady"></span>
-    <h3 class="empty-contact-list" *ngIf="!loading && isServerReady && contactsList.length === 0">No contacts found</h3>
-    <ng-container *ngIf="!loading && isServerReady">
+    <span class="loader" *ngIf="getLoadingContacts || !isServerReady"></span>
+    <h3 class="empty-contact-list" *ngIf="!getLoadingContacts && isServerReady && contactsList.length === 0">No contacts found</h3>
+    <ng-container *ngIf="!getLoadingContacts && isServerReady">
       <ng-container *ngFor="let contact of contactsList">
         <div class="contact-card">
           <div class="contact-img" [style.background-color]="contact.avatar ? contact.avatar : '#D6D6D6'"></div>
@@ -18,23 +18,23 @@
 
             <ng-container *ngIf="hasReceivedRequest(contact.connectionId)">
               <div class="contact-options">
-                <button [className]="requestLoading && requestLoading === contact.connectionId? 'accept-contact loading' : 'accept-contact'"
+                <button [className]="getRequestLoading && getRequestLoading === contact.connectionId? 'accept-contact loading' : 'accept-contact'"
                         (click)="acceptContact(contact.connectionId)">Accept</button>
-                <button [className]="requestLoading && requestLoading === contact.connectionId? 'decline-contact loading' : 'decline-contact'"
+                <button [className]="getRequestLoading && getRequestLoading === contact.connectionId? 'decline-contact loading' : 'decline-contact'"
                         (click)="declineRequest(contact.connectionId)">Decline</button>
               </div>
             </ng-container>
 
             <ng-container *ngIf="hasSentRequest(contact.connectionId)">
               <div class="contact-options">
-                <button [className]="requestLoading && requestLoading === contact.connectionId? 'decline-contact loading' : 'decline-contact'"
+                <button [className]="getRequestLoading && getRequestLoading === contact.connectionId? 'decline-contact loading' : 'decline-contact'"
                         (click)="cancelRequest(contact.connectionId)">Cancel request</button>
               </div>
             </ng-container>
 
             <ng-container *ngIf="!hasSentRequest(contact.connectionId) && !hasReceivedRequest(contact.connectionId)">
               <div class="contact-options">
-                <button [className]="requestLoading && requestLoading === contact.connectionId? 'send-request loading' : 'send-request'"
+                <button [className]="getRequestLoading && getRequestLoading === contact.connectionId? 'send-request loading' : 'send-request'"
                         (click)="addContact(contact.connectionId)">Send request</button>
               </div>
             </ng-container>

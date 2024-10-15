@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Friend } from "../../models/Friend";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
-import {debounceTime, Subscription} from "rxjs";
+import { Subscription} from "rxjs";
 import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
 import { FriendsListHandlerService } from "../../shared/friends-list-handler.service";
 import { FriendRequest } from "../../models/FriendRequest";
@@ -58,7 +58,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
         if (isReady) {
           this.loadRequests();
           this.loadFriends();
-          this.subscribeToMessages();
           this.subscribeToFriendsList();
           this.subscribeToRequestsList();
 
@@ -95,17 +94,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.friendRequestHandlerService.loadReceivedRequests().subscribe(() => {
         this.loading = false;
-      })
-    );
-  }
-
-  subscribeToMessages(): void {
-    this.subscriptions.add(
-      this.messageService.message$.pipe(debounceTime(300)).subscribe(message => {
-        if (message) {
-          this.friendRequestHandlerService.handleMessage(message);
-          this.friendsListHandlerService.handleIncomingMessage(message);
-        }
       })
     );
   }

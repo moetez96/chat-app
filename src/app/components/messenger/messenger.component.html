@@ -8,7 +8,7 @@
       <button class="tab-button"
               [ngClass]="{'active': selectedTab === 'friends'}"
               (click)="selectTab('friends')">Friends
-        <span class="notifications" *ngIf="unseenMessagesCount > 0">
+        <span class="notifications" *ngIf="unseenMessagesCount > 0 ">
             {{ unseenMessagesCount }}
           </span>
 
