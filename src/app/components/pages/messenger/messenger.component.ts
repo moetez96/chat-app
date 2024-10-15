@@ -1,15 +1,15 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { Friend } from "../../models/Friend";
-import { WebSocketService } from "../../socket/WebSocketService";
-import { MessageService } from '../../shared/message.service';
+import { Friend } from "../../../models/Friend";
+import { WebSocketService } from "../../../socket/WebSocketService";
+import { MessageService } from '../../../shared/message.service';
 import { Subscription} from "rxjs";
-import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
-import { FriendsListHandlerService } from "../../shared/friends-list-handler.service";
-import { FriendRequest } from "../../models/FriendRequest";
+import { FriendRequestHandlerService } from "../../../shared/friend-request-handler.service";
+import { FriendsListHandlerService } from "../../../shared/friends-list-handler.service";
+import { FriendRequest } from "../../../models/FriendRequest";
 import { ActivatedRoute, Router } from "@angular/router";
-import { FriendsService } from "../../services/friends.service";
-import {PollingService} from "../../shared/polling.service";
-import {NotificationHandlerService} from "../../shared/notification-handler.service";
+import { FriendsService } from "../../../services/friends.service";
+import {PollingService} from "../../../shared/polling.service";
+import {NotificationHandlerService} from "../../../shared/notification-handler.service";
 
 @Component({
   selector: 'app-messenger',
@@ -119,7 +119,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.friendsListHandlerService.friendsList$.subscribe(friends => {
         if (this.selectedId) {
-          const friend = friends.find(friend => friend.connectionId === this.selectedId);
+          let friend = friends.find(friend => friend.connectionId === this.selectedId);
           if (friend) {
             friend.unSeen = 0;
           }

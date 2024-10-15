@@ -61,6 +61,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes["selectedId"]) {
+      this.message = "";
       this.selectedId = changes["selectedId"].currentValue;
 
       if (this.conversationSubscription) {
@@ -95,7 +96,8 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
     this.conversationSubscription = this.conversationHandlerService.chatMessages$.subscribe(messages => {
         this.chatMessages = [...messages];
-      });
+        this.message = "";
+    });
   }
 
   handleSelectedFriend(friend: Friend) {
@@ -113,7 +115,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   }
 
   sendMessage() {
-    if (this.message && this.selectedFriend?.convId) {
+    if (this.message && this.selectedFriend?.convId && !this.getLoadingSend) {
       this.conversationHandlerService.setLoadingSend(true);
 
       this.webSocketService.publish(this.selectedFriend.convId, {
@@ -123,8 +125,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
         receiverUsername: this.selectedFriend.connectionUsername,
         time: Date.now()
       });
-
-      this.message = "";
     }
   }
 

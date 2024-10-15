@@ -3,7 +3,6 @@ import { AuthService } from "../../services/auth.service";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { Router } from "@angular/router";
 import { MessageService } from "../../shared/message.service";
-import { NotificationType } from "../../models/enums/NotificationType";
 import { FriendsRequestService } from "../../services/friends-request.service";
 import { NotificationHandlerService } from "../../shared/notification-handler.service";
 import { Subscription} from 'rxjs';
@@ -15,6 +14,9 @@ import { Subscription} from 'rxjs';
 export class NavbarComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
+
+  unseenRequestsCount: number = 0;
+  unseenMessagesCount: number = 0;
 
   constructor(private authService: AuthService,
               private friendsRequestService: FriendsRequestService,
@@ -28,20 +30,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       const requestsSubscription = this.friendsRequestService.getReceivedUnseenRequests().subscribe({
         next: (requests) => {
-          this.notificationHandlerService.setUnseenRequest(
-            requests.map((req) => ({
-              senderId: req.sender.connectionId,
-              senderUsername: req.sender.connectionUsername,
-              receiverId: req.receiver.connectionId,
-              receiverUsername: req.receiver.connectionUsername,
-              notificationType: NotificationType.REQUEST
-            }))
-          );
+          this.notificationHandlerService.setUnseenRequest(requests);
         },
         error: (err) => console.log(err),
       });
 
+      const unseenMessagesSubscription = this.notificationHandlerService.unseenMessages$.subscribe(unseen => {
+        this.unseenMessagesCount = unseen.length;
+      });
+
+      const unseenRequestsSubscription = this.notificationHandlerService.unseenRequests$.subscribe(unseen => {
+        this.unseenRequestsCount = unseen.length;
+      });
+
       this.subscriptions.add(requestsSubscription);
+      this.subscriptions.add(unseenMessagesSubscription);
+      this.subscriptions.add(unseenRequestsSubscription);
 
     }
   }
@@ -64,11 +68,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.router.url === '/contacts';
   }
 
-  get unseenRequestsCount(): number {
-    return this.notificationHandlerService.getUnseenRequests().length;
-  }
-
-  get unseenMessagesCount(): number {
-    return this.notificationHandlerService.getUnseenMessages().length;
-  }
 }

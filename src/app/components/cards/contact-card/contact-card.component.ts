@@ -1,13 +1,13 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Friend} from "../../models/Friend";
+import {Friend} from "../../../models/Friend";
 import {IMessage} from "@stomp/stompjs";
-import {WebSocketService} from "../../socket/WebSocketService";
-import {ChatMessage} from "../../models/ChatMessage";
-import {AuthService} from "../../services/auth.service";
-import {MessageType} from "../../models/enums/MessageType";
-import {MessageDeliveryStatusEnum} from "../../models/enums/MessageDeliveryStatusEnum";
-import {CurrentUser} from "../../models/CurrentUser";
-import {DateUtils} from "../../utils/DateUtils";
+import {WebSocketService} from "../../../socket/WebSocketService";
+import {ChatMessage} from "../../../models/ChatMessage";
+import {AuthService} from "../../../services/auth.service";
+import {MessageType} from "../../../models/enums/MessageType";
+import {MessageDeliveryStatusEnum} from "../../../models/enums/MessageDeliveryStatusEnum";
+import {CurrentUser} from "../../../models/CurrentUser";
+import {DateUtils} from "../../../utils/DateUtils";
 
 @Component({
   selector: 'app-contact-card',

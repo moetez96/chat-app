@@ -7,16 +7,16 @@ import { ToastrModule, provideToastr } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
+import { LoginComponent } from './components/pages/login/login.component';
+import { RegisterComponent } from './components/pages/register/register.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { MessengerComponent } from './components/messenger/messenger.component';
-import { ContactCardComponent } from './components/contact-card/contact-card.component';
+import { MessengerComponent } from './components/pages/messenger/messenger.component';
+import { ContactCardComponent } from './components/cards/contact-card/contact-card.component';
 import { ChatComponent } from './components/chat/chat.component';
-import { ContactsComponent } from './components/contacts/contacts.component';
+import { ContactsComponent } from './components/pages/contacts/contacts.component';
 import {
   ReceivedFriendRequestCardComponent
-} from "./components/received-friend-request-card/received-friend-request-card.component";
+} from "./components/cards/received-friend-request-card/received-friend-request-card.component";
 import {AuthInterceptor} from "./interceptors/auth-interceptor.service";
 import { RequestsListComponent } from './components/requests-list/requests-list.component';
 import {FriendsListComponent} from "./components/friends-list/friends-list.component";

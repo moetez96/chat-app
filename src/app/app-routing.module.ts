@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {LoginComponent} from "./components/login/login.component";
-import {RegisterComponent} from "./components/register/register.component";
+import {LoginComponent} from "./components/pages/login/login.component";
+import {RegisterComponent} from "./components/pages/register/register.component";
 import {AuthGuard} from "./guards/auth.guard";
-import {MessengerComponent} from "./components/messenger/messenger.component";
-import {ContactsComponent} from "./components/contacts/contacts.component";
+import {MessengerComponent} from "./components/pages/messenger/messenger.component";
+import {ContactsComponent} from "./components/pages/contacts/contacts.component";
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },

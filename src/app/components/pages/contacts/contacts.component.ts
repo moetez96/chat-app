@@ -1,17 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Friend } from "../../models/Friend";
-import { FriendsService } from "../../services/friends.service";
-import { FriendsRequestService } from "../../services/friends-request.service";
-import { FriendRequest } from "../../models/FriendRequest";
+import { Friend } from "../../../models/Friend";
+import { FriendsService } from "../../../services/friends.service";
+import { FriendsRequestService } from "../../../services/friends-request.service";
+import { FriendRequest } from "../../../models/FriendRequest";
 import { Subscription } from "rxjs";
-import { MessageService } from "../../shared/message.service";
-import { AuthService } from "../../services/auth.service";
-import { CurrentUser } from "../../models/CurrentUser";
+import { MessageService } from "../../../shared/message.service";
+import { AuthService } from "../../../services/auth.service";
+import { CurrentUser } from "../../../models/CurrentUser";
 import { ToastrService } from "ngx-toastr";
-import { PollingService } from "../../shared/polling.service";
-import { NotificationHandlerService } from "../../shared/notification-handler.service";
-import { FriendRequestHandlerService } from "../../shared/friend-request-handler.service";
-import { ContactsHandlerService } from "../../shared/contacts-handler.service";
+import { PollingService } from "../../../shared/polling.service";
+import { NotificationHandlerService } from "../../../shared/notification-handler.service";
+import { FriendRequestHandlerService } from "../../../shared/friend-request-handler.service";
+import { ContactsHandlerService } from "../../../shared/contacts-handler.service";
 
 @Component({
   selector: 'app-contacts',

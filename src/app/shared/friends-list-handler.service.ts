@@ -71,28 +71,30 @@ export class FriendsListHandlerService {
   }
 
   handleIncomingMessage(message: ChatMessage): void {
-    const updatedFriendsList = this.friendsListSubject.value.map((friend) => {
-      if (message.messageType === MessageType.FRIEND_ONLINE || message.messageType === MessageType.FRIEND_OFFLINE) {
-        this.updateFriendOnlineStatus(friend, message);
-      }
+    switch (message.messageType) {
+      case MessageType.FRIEND_ONLINE:
+      case MessageType.FRIEND_OFFLINE:
+        this.updateFriendOnlineStatus(message);
+        break;
 
-      if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED || message.messageType === MessageType.UNSEEN) {
-        this.updateFriendUnseenCount(friend, message);
-      }
+      case MessageType.UNSEEN:
+        this.updateFriendUnseenCount(message);
+        break;
 
-      if (message.messageType === MessageType.MESSAGE_DELIVERY_UPDATE) {
+      case MessageType.MESSAGE_DELIVERY_UPDATE:
         this.updateMessageStatus(message);
-      }
+        break;
+    }
 
-      if (message.content) {
-        this.updateFriendLastMessage(friend, message);
-      }
+    if (message.messageDeliveryStatusEnum === MessageDeliveryStatusEnum.DELIVERED) {
+      this.updateFriendUnseenCount(message);
+    }
 
-      return friend;
-    });
-
-    this.friendsListSubject.next(this.removeDuplicates(updatedFriendsList));
+    if (message.content) {
+      this.updateFriendLastMessage(message);
+    }
   }
+
 
   sortFriends(friends: Friend[]): Friend[] {
     return friends.sort((a, b) => {
@@ -124,23 +126,37 @@ export class FriendsListHandlerService {
     });
   }
 
-  updateFriendOnlineStatus(friend: Friend, message: ChatMessage) {
-    if (message.userConnection && message.userConnection.connectionId === friend.connectionId) {
+  updateFriendOnlineStatus(message: ChatMessage) {
 
-      friend.isOnline = message.messageType === MessageType.FRIEND_ONLINE;
+    let friendsList = this.friendsListSubject.getValue();
+    let updatedFriend = friendsList.find((friend) => message.userConnection && message.userConnection.connectionId === friend.connectionId);
+    if (updatedFriend) {
+      updatedFriend.isOnline = message.messageType === MessageType.FRIEND_ONLINE;
     }
+
+    this.friendsListSubject.next(this.removeDuplicates([...friendsList]));
   }
 
-  updateFriendUnseenCount(friend: Friend, message: ChatMessage) {
-    if (message.senderId && message.senderId === friend.connectionId) {
-      friend.unSeen++;
+  updateFriendUnseenCount(message: ChatMessage) {
+
+    let friendsList = this.friendsListSubject.getValue();
+    let updatedFriend = friendsList.find((friend) => message.senderId && message.senderId === friend.connectionId);
+    if (updatedFriend) {
+      updatedFriend.unSeen++;
     }
+
+    this.friendsListSubject.next(this.removeDuplicates([...friendsList]));
   }
 
-  updateFriendLastMessage(friend: Friend, message: ChatMessage) {
-    if (message.content && (message.senderId === friend.connectionId || message.receiverId === friend.connectionId)) {
-      friend.lastMessage = message;
+  updateFriendLastMessage(message: ChatMessage) {
+
+    let friendsList = this.friendsListSubject.getValue();
+    let updatedFriend = friendsList.find((friend) => message.content && (message.senderId === friend.connectionId || message.receiverId === friend.connectionId));
+    if (updatedFriend) {
+      updatedFriend.lastMessage = message;
     }
+
+    this.friendsListSubject.next(this.removeDuplicates([...friendsList]));
   }
 
   private removeDuplicates(friends: Friend[]): Friend[] {
@@ -168,12 +184,13 @@ export class FriendsListHandlerService {
         return;
       }
 
-      const friendsList = this.friendsListSubject.getValue();
-
-      const friend = friendsList.find(friend => friend.lastMessage?.id === lastMessage?.id);
-
-      if (friend) {
-        friend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusEnum;
+      let friendsList = this.friendsListSubject.getValue();
+      const foundFriend = friendsList.find(friend => friend?.lastMessage?.id === lastMessage?.id);
+      console.log(foundFriend);
+      if (foundFriend) {
+        foundFriend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusEnum;
+        console.log(foundFriend);
+        console.log(friendsList);
         this.friendsListSubject.next([...friendsList]);
       }
     }

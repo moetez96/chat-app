@@ -36,22 +36,6 @@ export class FriendRequestHandlerService {
     );
   }
 
-  /*
-  handleMessage(message: any) {
-    switch (message.messageType) {
-      case MessageType.FRIEND_REQUEST_ACCEPTED:
-        this.friendsListHandlerService.addNewFriend(message.senderId);
-        break;
-      case MessageType.FRIEND_REQUEST:
-        this.handleFriendRequest(message.senderId, message.receiverId);
-        break;
-      case MessageType.FRIEND_REQUEST_CANCELED:
-        this.handleFriendRequestCanceled(message.senderId, message.receiverId);
-        break;
-    }
-  }
-  */
-
   handleNotificationMessage(message: any) {
     let receivedRequests = this.requestsListSubject.getValue();
     let sentRequests = this.sentRequestsSubject.getValue();

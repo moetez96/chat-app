@@ -1,9 +1,9 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {FriendRequest} from "../../models/FriendRequest";
-import {AuthService} from "../../services/auth.service";
-import {FriendsRequestService} from "../../services/friends-request.service";
-import {Friend} from "../../models/Friend";
-import {FriendRequestHandlerService} from "../../shared/friend-request-handler.service";
+import {FriendRequest} from "../../../models/FriendRequest";
+import {AuthService} from "../../../services/auth.service";
+import {FriendsRequestService} from "../../../services/friends-request.service";
+import {Friend} from "../../../models/Friend";
+import {FriendRequestHandlerService} from "../../../shared/friend-request-handler.service";
 
 @Component({
   selector: 'app-received-friend-request-card',

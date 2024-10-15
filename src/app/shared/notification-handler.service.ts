@@ -7,6 +7,7 @@ import {MessageDeliveryStatusEnum} from "../models/enums/MessageDeliveryStatusEn
 import {ChatMessage} from "../models/ChatMessage";
 import {AuthService} from "../services/auth.service";
 import {ToastrService} from "ngx-toastr";
+import {FriendRequest} from "../models/FriendRequest";
 
 @Injectable({
   providedIn: 'root'
@@ -42,8 +43,16 @@ export class NotificationHandlerService {
     }
   }
 
-  setUnseenRequest(requests: SimpleNotif[]): void {
-    this.unseenRequestsSubject.next(requests);
+  setUnseenRequest(requests: FriendRequest[]): void {
+    const requestNotifs = requests.map((req) => ({
+      senderId: req.sender.connectionId,
+      senderUsername: req.sender.connectionUsername,
+      receiverId: req.receiver.connectionId,
+      receiverUsername: req.receiver.connectionUsername,
+      notificationType: NotificationType.REQUEST
+    }));
+
+    this.unseenRequestsSubject.next(requestNotifs);
   }
 
   removeUnseenRequest(senderId: string, receiverId: string): void {
@@ -60,14 +69,6 @@ export class NotificationHandlerService {
   resetUnseenMessages(): void {
     const emptyMessages: SimpleNotif[] = [];
     this.unseenMessagesSubject.next(emptyMessages);
-  }
-
-  getUnseenMessages(): SimpleNotif[] {
-    return this.unseenMessagesSubject.getValue();
-  }
-
-  getUnseenRequests(): SimpleNotif[] {
-    return this.unseenRequestsSubject.getValue();
   }
 
   handleMessageNotifications(message: ChatMessage) {
