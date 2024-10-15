@@ -41,7 +41,9 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   currentUser: CurrentUser | null = null;
   message: string = "";
 
-  private subscription: Subscription = new Subscription();
+  private conversationSubscription!: Subscription;
+  private messageSubscription!: Subscription;
+
 
   constructor(
     private authService: AuthService,
@@ -61,37 +63,39 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
     if (changes["selectedId"]) {
       this.selectedId = changes["selectedId"].currentValue;
 
+      if (this.conversationSubscription) {
+        this.conversationSubscription.unsubscribe();
+      }
+
+      if (this.messageSubscription) {
+        this.messageSubscription.unsubscribe();
+      }
+
       if (this.selectedId) {
-        this.subscription.add(
-          this.friendsService.getFriendById(this.selectedId).subscribe({
-            next: (friend) => {
-              this.selectedFriend = friend;
-              this.handleSelectedFriend(this.selectedFriend);
-            },
-            error: (error) => {
-              console.log(error);
-            }
-          })
-        );
+        this.friendsService.getFriendById(this.selectedId).subscribe({
+          next: (friend) => {
+            this.selectedFriend = friend;
+            this.handleSelectedFriend(this.selectedFriend);
+          },
+          error: (error) => {
+            console.log(error);
+          }
+        });
       }
     }
   }
 
   subscribeToMessages(connectionId: string): void {
-    this.subscription.add(
-      this.messageService.message$.subscribe(message => {
-        if (message) {
-          this.conversationHandlerService.handleIncomingMessage(message, connectionId);
-          this.selectedFriend = this.conversationHandlerService.updateSelectedFriendOnlineStatus(this.selectedFriend, message);
-        }
-      })
-    );
+    this.messageSubscription = this.messageService.message$.subscribe(message => {
+      if (message) {
+        this.conversationHandlerService.handleIncomingMessage(message, connectionId);
+        this.selectedFriend = this.conversationHandlerService.updateSelectedFriendOnlineStatus(this.selectedFriend, message);
+      }
+    });
 
-    this.subscription.add(
-      this.conversationHandlerService.chatMessages$.subscribe(messages => {
+    this.conversationSubscription = this.conversationHandlerService.chatMessages$.subscribe(messages => {
         this.chatMessages = [...messages];
-      })
-    );
+      });
   }
 
   handleSelectedFriend(friend: Friend) {
@@ -149,8 +153,15 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   }
 
   ngOnDestroy() {
+
+    if (this.conversationSubscription) {
+      this.conversationSubscription.unsubscribe();
+    }
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
+
     this.webSocketService.unsubscribeFromConversation();
-    this.subscription.unsubscribe();
   }
 
   protected readonly DateUtils = DateUtils;

@@ -85,7 +85,11 @@ export class SubscriptionManager {
   }
 
   subscribeToAll() {
+    this.subscriptions.forEach((subscription, key) => {
+      subscription.unsubscribe();
+    });
     this.subscriptions.clear();
+
     this.subscribeToUser();
 
     if (this.currentConversationId) {

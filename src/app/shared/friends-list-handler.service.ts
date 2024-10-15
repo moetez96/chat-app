@@ -80,11 +80,6 @@ export class FriendsListHandlerService {
         this.updateFriendUnseenCount(friend, message);
       }
 
-      if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
-        this.toastr.info(message.senderUsername + ' accepted your friend request', 'Accepted friend request');
-        this.addNewFriend(message.senderId);
-      }
-
       if (message.messageType === MessageType.MESSAGE_DELIVERY_UPDATE) {
         this.updateMessageStatus(message);
       }
@@ -175,9 +170,9 @@ export class FriendsListHandlerService {
 
       const friendsList = this.friendsListSubject.getValue();
 
-      const friend = friendsList.find(friend => friend.lastMessage.id === lastMessage.id);
+      const friend = friendsList.find(friend => friend.lastMessage?.id === lastMessage?.id);
 
-      if (friend && friend.lastMessage) {
+      if (friend) {
         friend.lastMessage.messageDeliveryStatusEnum = message.messageDeliveryStatusEnum;
         this.friendsListSubject.next([...friendsList]);
       }

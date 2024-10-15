@@ -13,7 +13,9 @@ import {ToastrService} from "ngx-toastr";
 })
 export class NotificationHandlerService {
   private unseenMessagesSubject = new BehaviorSubject<SimpleNotif[]>([]);
+  unseenMessages$  = this.unseenMessagesSubject.asObservable();
   private unseenRequestsSubject = new BehaviorSubject<SimpleNotif[]>([]);
+  unseenRequests$  = this.unseenRequestsSubject.asObservable();
 
   constructor(private authService: AuthService, private toastr: ToastrService) {
   }

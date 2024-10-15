@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { Friend } from "../../models/Friend";
 import { WebSocketService } from "../../socket/WebSocketService";
 import { MessageService } from '../../shared/message.service';
@@ -25,12 +25,15 @@ export class MessengerComponent implements OnInit, OnDestroy {
   allFriendsList: Friend[] = [];
 
   selectedTab: string = 'friends';
-  awaitingUnseenMessagesCount: number = 0;
   searchText: string = "";
   selectedId: string | null = null;
 
   expand: boolean = false;
   loading: boolean = true;
+
+  awaitingUnseenMessagesCount: number = 0;
+  unseenMessagesCount: number = 0;
+  unseenRequestsCount: number = 0
 
   isServerReady: boolean = false;
 
@@ -45,12 +48,27 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private friendsService: FriendsService,
     private pollingService: PollingService,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
   async ngOnInit() {
     this.checkScreenWidth();
     window.addEventListener('resize', this.checkScreenWidth.bind(this));
+
+    this.subscriptions.add(
+      this.notificationHandlerService.unseenMessages$.subscribe(unseen => {
+        this.unseenMessagesCount = unseen.length;
+        this.cdr.detectChanges();
+      })
+    );
+
+    this.subscriptions.add(
+      this.notificationHandlerService.unseenRequests$.subscribe(unseen => {
+        this.unseenRequestsCount = unseen.length;
+        this.cdr.detectChanges();
+      })
+    );
 
     this.subscriptions.add(
       this.pollingService.isServerReady$.subscribe(isReady => {
@@ -73,7 +91,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
         }
       })
     );
-
   }
 
   ngOnDestroy(): void {
@@ -139,13 +156,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
     this.searchText = "";
   }
 
-  get unseenRequestsCount(): number {
-    return this.notificationHandlerService.getUnseenRequests().length;
-  }
-
-  get unseenMessagesCount(): number {
-    return this.notificationHandlerService.getUnseenMessages().length;
-  }
 
   handleSelectedFriend(selectedFriend: Friend): void {
     if (selectedFriend && selectedFriend.connectionId) {

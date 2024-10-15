@@ -36,6 +36,7 @@ export class FriendRequestHandlerService {
     );
   }
 
+  /*
   handleMessage(message: any) {
     switch (message.messageType) {
       case MessageType.FRIEND_REQUEST_ACCEPTED:
@@ -48,6 +49,36 @@ export class FriendRequestHandlerService {
         this.handleFriendRequestCanceled(message.senderId, message.receiverId);
         break;
     }
+  }
+  */
+
+  handleNotificationMessage(message: any) {
+    let receivedRequests = this.requestsListSubject.getValue();
+    let sentRequests = this.sentRequestsSubject.getValue();
+
+    switch (message.messageType) {
+      case MessageType.FRIEND_REQUEST:
+        this.addFriendRequest(receivedRequests, message);
+        this.handleFriendRequest(message.senderId, message.receiverId);
+        break;
+
+      case MessageType.FRIEND_REQUEST_ACCEPTED:
+        this.toastr.info(`${message.senderUsername} accepted your friend request`, 'Accepted friend request');
+        this.notificationHandlerService.removeUnseenRequest(message.receiverId, message.senderId);
+        this.friendsListHandlerService.addNewFriend(message.senderId);
+        break;
+
+      case MessageType.FRIEND_REQUEST_DECLINED:
+        this.notificationHandlerService.removeUnseenRequest(message.receiverId, message.senderId);
+        this.removeDeclinedFriendRequest(sentRequests, message);
+        break;
+
+      case MessageType.FRIEND_REQUEST_CANCELED:
+        this.removeCanceledFriendRequest(receivedRequests, message);
+        this.handleFriendRequestCanceled(message.senderId, message.receiverId);
+        break;
+    }
+
   }
 
   removeRequest(request: FriendRequest) {
@@ -85,32 +116,6 @@ export class FriendRequestHandlerService {
       req.sender.connectionId !== senderId || req.receiver.connectionId !== receiverId
     );
     this.requestsListSubject.next(updatedList);
-  }
-
-  handleNotificationMessage(message: any) {
-    let receivedRequests = this.requestsListSubject.getValue();
-    let sentRequests = this.sentRequestsSubject.getValue();
-
-    switch (message.messageType) {
-      case MessageType.FRIEND_REQUEST:
-        this.addFriendRequest(receivedRequests, message);
-        break;
-
-      case MessageType.FRIEND_REQUEST_ACCEPTED:
-        this.toastr.info(`${message.senderUsername} accepted your friend request`, 'Accepted friend request');
-        this.notificationHandlerService.removeUnseenRequest(message.receiverId, message.senderId);
-        break;
-
-      case MessageType.FRIEND_REQUEST_DECLINED:
-        this.notificationHandlerService.removeUnseenRequest(message.receiverId, message.senderId);
-        this.removeDeclinedFriendRequest(sentRequests, message);
-        break;
-
-      case MessageType.FRIEND_REQUEST_CANCELED:
-        this.removeCanceledFriendRequest(receivedRequests, message);
-        break;
-    }
-
   }
 
   addFriendRequest(receivedRequests: FriendRequest[], message: any) {

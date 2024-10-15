@@ -56,12 +56,12 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.messageSubscription = this.messageService.message$.pipe(debounceTime(100)).subscribe(message => {
+      console.log(message);
       if (message) {
-        console.log(message);
-        this.friendRequestHandlerService.handleMessage(message);
+        //this.friendRequestHandlerService.handleMessage(message);
+        this.friendRequestHandlerService.handleNotificationMessage(message);
         this.friendsListHandlerService.handleIncomingMessage(message);
         this.notificationHandlerService.handleMessageNotifications(message);
-        this.friendRequestHandlerService.handleNotificationMessage(message);
         this.contactsHandlerService.handleContactsMessage(message);
       }
     });

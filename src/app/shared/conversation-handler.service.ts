@@ -87,9 +87,7 @@ export class ConversationHandlerService {
   addChatMessage(message: ChatMessage, connectionId: string) {
     if ((message.senderId === this.currentUser?.id && message.receiverId === connectionId) ||
       (message.senderId === connectionId && message.receiverId === this.currentUser?.id)) {
-
       let chatMessages = this.chatMessageSubject.getValue();
-
       const newChatMessages = [...chatMessages];
 
       if (!newChatMessages.some(chat => chat.id === message.id)) {
