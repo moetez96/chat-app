@@ -41,9 +41,13 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   currentUser: CurrentUser | null = null;
   message: string = "";
 
-  private conversationSubscription!: Subscription;
-  private messageSubscription!: Subscription;
+  loadingConversation: boolean = false;
+  loadingSend: boolean = false;
 
+  private conversationSubscription!: Subscription;
+  private messageSubscription!: Subscription
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private authService: AuthService,
@@ -57,6 +61,18 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
+
+    this.subscriptions.add(
+      this.conversationHandlerService.loadingSend$.subscribe((isLoading: boolean) => {
+        this.loadingConversation = isLoading;
+      })
+    );
+
+    this.subscriptions.add(
+      this.conversationHandlerService.loadingConversation$.subscribe((isLoading: boolean) => {
+        this.loadingSend = isLoading;
+      })
+    );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -115,7 +131,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
   }
 
   sendMessage() {
-    if (this.message && this.selectedFriend?.convId && !this.getLoadingSend) {
+    if (this.message && this.selectedFriend?.convId && !this.loadingSend) {
       this.conversationHandlerService.setLoadingSend(true);
 
       this.webSocketService.publish(this.selectedFriend.convId, {
@@ -140,14 +156,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
     this.scrollToBottom();
   }
 
-  get getLoadingSend(): boolean {
-    return this.conversationHandlerService.getLoadingSend();
-  }
-
-  get getLoadingConversation(): boolean {
-    return this.conversationHandlerService.getLoadingConversation();
-  }
-
   get isServerReady(): boolean {
     return this.pollingService.isServerReady();
   }
@@ -161,6 +169,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
       this.messageSubscription.unsubscribe();
     }
 
+    this.subscriptions.unsubscribe();
     this.webSocketService.unsubscribeFromConversation();
   }
 

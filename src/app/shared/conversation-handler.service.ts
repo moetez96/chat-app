@@ -14,7 +14,9 @@ import {Friend} from "../models/Friend";
 export class ConversationHandlerService {
 
   private loadingSendSubject = new BehaviorSubject<boolean>(false);
+  loadingSend$ = this.loadingSendSubject.asObservable();
   private loadingConversationSubject = new BehaviorSubject<boolean>(false);
+  loadingConversation$ = this.loadingConversationSubject.asObservable();
   private chatMessageSubject = new BehaviorSubject<ChatMessage[]>([]);
   chatMessages$ = this.chatMessageSubject.asObservable();
 
@@ -28,16 +30,8 @@ export class ConversationHandlerService {
     this.loadingSendSubject.next(state);
   }
 
-  getLoadingSend(): boolean {
-    return this.loadingSendSubject.getValue();
-  }
-
   setLoadingConversation(state: boolean) {
     this.loadingConversationSubject.next(state);
-  }
-
-  getLoadingConversation() {
-    return this.loadingConversationSubject.getValue();
   }
 
   handleIncomingMessage(message: ChatMessage, connectionId: string) {

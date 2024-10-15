@@ -65,7 +65,6 @@ export class ContactsHandlerService {
     });
   }
 
-
   handleContactsMessage(message: ChatMessage) {
     if (message.messageType === MessageType.FRIEND_REQUEST_ACCEPTED) {
       this.removeAcceptedFriend(message.senderId);
