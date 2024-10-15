@@ -64,13 +64,13 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy, AfterViewChe
 
     this.subscriptions.add(
       this.conversationHandlerService.loadingSend$.subscribe((isLoading: boolean) => {
-        this.loadingConversation = isLoading;
+        this.loadingSend = isLoading;
       })
     );
 
     this.subscriptions.add(
       this.conversationHandlerService.loadingConversation$.subscribe((isLoading: boolean) => {
-        this.loadingSend = isLoading;
+        this.loadingConversation= isLoading;
       })
     );
   }
