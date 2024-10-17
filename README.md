@@ -1,6 +1,6 @@
 # Chat App
 
-This is the frontend of SocialApp, a responsive messeging application built with Angular.
+This is the frontend of ChatApp, a responsive messeging application built with Angular.
 
 The app allows users to register, log in, search for new friends, send and manage friendship requests, and chat in real-time with other users. 
 
