@@ -1,27 +1,44 @@
-# ChatApp
+# Chat App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.1.
+This is the frontend of ChatApp, a responsive messeging application built with Angular.
 
-## Development server
+The app allows users to register, log in, search for new friends, send and manage friendship requests, and chat in real-time with other users. 
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+WebSocket communication, powered by STOMP, enables real-time notifications and live chat.
 
-## Code scaffolding
+## Live Demo
+Check out the live demo of the app here: 
+[Chat App Live Demo](https://chat-app-rust-phi.vercel.app/)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Features
+- **User Registration and Login:** Secure registration and login using JWT-based authentication.
+- **Search Friends:** Users can search for other users by username.
+- **Friendship Requests:** Send, accept, and manage friendship requests.
+- **Chat:** Engage in real-time one-on-one messaging with friends.
+- **Real-time Notifications:** Receive real-time notifications for new messages, friend requests, and online/offline.
+- **Responsive Design:** Fully responsive design, ensuring smooth functionality across desktops, tablets, and mobile devices.
 
-## Build
+## Usage
+- **Register:** Sign up using the registration form.
+- **Login:** Log in using your credentials.
+- **Search Friends:** Use the search bar to find new friends by name or username.
+- **Friendship Requests:** Send or manage friendship requests through the dedicated section.
+- **Chat:** Start a conversation with any of your friends in real-time.
+- **Notifications:** Receive real-time updates for new messages, requests, and friend activity via WebSockets and STOMP.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Technologies Used
+- **Angular:** Frontend framework for building dynamic, responsive user interfaces.
+- **STOMP (Simple Text Oriented Messaging Protocol):** Protocol used for WebSocket communication.
+- **JWT:** Secure user authentication.   
+- **CSS:** Styling for responsive layout and design. 
 
-## Running unit tests
+## Getting Started
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Follow these instructions to set up and run the project locally for development and testing purposes.
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```
+-> git clone https://github.com/moetez96/chat-app.git
+-> cd chat-app
+-> npm install
+-> npm serve
+```
