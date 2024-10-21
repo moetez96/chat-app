@@ -49,8 +49,8 @@ export class RegisterComponent implements OnInit {
     }
 
     const signupRequest: SignupRequest = {
-      username: this.form['username'].value,
-      email: this.form['email'].value,
+      username: this.form['username'].value.trim(),
+      email: this.form['email'].value.trim(),
       password: this.form['password'].value,
     };
 

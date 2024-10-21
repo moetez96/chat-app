@@ -48,7 +48,7 @@ export class LoginComponent {
     }
 
     const loginRequest: LoginRequest = {
-      username: this.form['username'].value,
+      username: this.form['username'].value.trim(),
       password: this.form['password'].value
     }
 
